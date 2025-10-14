@@ -1,57 +1,49 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LunchBot - 오늘 뭐 먹을까?</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="/css/mainpage.css">
 </head>
 
 <body>
+<!-- 빛 효과 -->
+<div class="light-glow"></div>
 
-<div class="main-wrapper">
-  <!-- 🍲 왼쪽 음식 이미지 -->
-  <div class="side-left-images">
-    <img src="/img/kimchi.png" alt="김치찌개">
-    <img src="/img/pizza.png" alt="피자">
-    <img src="/img/pork.png" alt="돈까스">
-    <img src="https://cdn-icons-png.flaticon.com/512/3480/3480765.png" alt="라멘">
-  </div>
+<!-- 냄새 효과 -->
+<div class="steam"></div>
+<div class="steam"></div>
+<div class="steam"></div>
 
-  <!-- 🎯 중앙 메인 -->
-  <main>
-    <header>
-      <div class="header-container">
-        <div class="main-food-icon">
-          <img src="/img/hamburger.png" alt="밥그릇">
-        </div>
-        <h1>LunchBot</h1>
-        <p class="subtitle">오늘 뭐 먹을까?</p>
-        <p class="description">AI가 당신의 기분에 딱 맞는 점심 메뉴를 추천해드립니다 🍱</p>
-      </div>
-    </header>
-
-    <div class="button-section">
-      <h2>함께 맛있는 점심시간을 즐겨요!</h2>
-      <div class="button-container">
-        <div id="btn-login" class="btn-login">로그인</div>
-        <div id="btn-signup" class="btn-signup">회원가입</div>
-      </div>
-    </div>
-  </main>
-
-  <!-- 🍣 오른쪽 음식 이미지 -->
-  <div class="side-right-images">
-    <img src="https://cdn-icons-png.flaticon.com/512/3480/3480761.png" alt="핫도그">
-    <img src="/img/steak.png" alt="스테이크">
-    <img src="/img/Pancake.png" alt="팬케이크">
-    <img src="/img/Fried.png" alt="볶음밥">
-  </div>
+<!-- 왼쪽 음식 -->
+<div class="side-left">
+  <img src="/img/kimchi.png" alt="김치찌개">
+  <img src="/img/pizza.png" alt="피자">
+  <img src="/img/pork.png" alt="돈까스">
 </div>
 
-<section>
-  <div class="category-section">
+<!-- 메인 콘텐츠 -->
+<main class="main-container">
+  <header>
+    <img src="/img/hamburger.png" alt="햄버거" class="main-icon">
+    <h1>LunchBot</h1>
+    <p class="subtitle">오늘 뭐 먹을까?</p>
+    <p class="description">AI가 당신의 기분과 날씨에 맞는 점심 메뉴를 추천해드립니다 🍱</p>
+  </header>
+
+  <section class="button-section">
+    <h2>함께 맛있는 점심시간을 즐겨요!</h2>
+    <div class="button-container">
+      <button id="btn-login" class="btn-login">로그인</button>
+      <button id="btn-signup" class="btn-signup">회원가입</button>
+    </div>
+  </section>
+
+  <section class="category-section">
     <h3>🍽 카테고리 선택</h3>
     <div class="category-buttons">
       <button class="category-btn">한식</button>
@@ -60,21 +52,40 @@
       <button class="category-btn">양식</button>
       <button class="category-btn">디저트</button>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>
-  © 2025 LunchBot | 당신의 점심 파트너 🍚
-</footer>
+  <footer>
+    © 2025 LunchBot | 당신의 점심 파트너 🍚
+  </footer>
+</main>
 
-</body>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- 오른쪽 음식 -->
+<div class="side-right">
+  <img src="/img/steak.png" alt="스테이크">
+  <img src="/img/pancake.png" alt="팬케이크">
+  <img src="/img/fried.png" alt="볶음밥">
+</div>
+
 <script>
-  document.getElementById('btn-login').addEventListener('click', function() {
-    window.location.href = '/login';
-  });
-  document.getElementById('btn-signup').addEventListener('click', function() {
-    window.location.href = '/signup';
+  // DOM이 완전히 로드된 후 실행
+  document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.getElementById('btn-login');
+    const signupBtn = document.getElementById('btn-signup');
+    
+    if (loginBtn) {
+      loginBtn.addEventListener('click', function() {
+        console.log('로그인 버튼 클릭됨');
+        window.location.href = '/login';
+      });
+    }
+    
+    if (signupBtn) {
+      signupBtn.addEventListener('click', function() {
+        console.log('회원가입 버튼 클릭됨');
+        window.location.href = '/signup';
+      });
+    }
   });
 </script>
+</body>
 </html>
