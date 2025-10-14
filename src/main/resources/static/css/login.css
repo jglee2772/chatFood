@@ -1,0 +1,141 @@
+/* ================================
+   LunchBot - 로그인 페이지 스타일
+   ================================ */
+
+/* 🧡 기본 레이아웃 */
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: linear-gradient(135deg, #FFF3E1 0%, #FFE0B2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  color: #3b2e25;
+}
+
+/* 🍱 로그인 박스 */
+.login-container {
+  background-color: #fffaf3;
+  border-radius: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  width: 380px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🤖 로봇 아이콘 */
+.robot-icon {
+  width: 70px;
+  background-color: #fffaf3;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 🧭 제목 영역 */
+h1 {
+  margin-top: 2.5rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #3b2e25;
+}
+
+p.subtitle {
+  color: #7c6754;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ✏️ 입력 영역 */
+.input-group {
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 1rem;
+  border: 1.8px solid #f5c38a;
+  background-color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #fb923c;
+}
+
+/* 🔘 로그인 버튼 */
+.login-btn {
+  background-color: #fb923c;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #f97316;
+  transform: translateY(-2px);
+}
+
+/* 🪶 하단 회원가입 링크 */
+.footer-link {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.footer-link a {
+  color: #fb923c;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-link a:hover {
+  text-decoration: underline;
+}
+
+/* 🍱 하단 일러스트 */
+.bottom-illustration {
+  margin-top: 2rem;
+}
+
+.bottom-illustration img {
+  width: 140px;
+  opacity: 0.9;
+}
+
+.bottom-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b4f3a;
+  margin-top: 0.5rem;
+}

@@ -10,66 +10,62 @@
 
 <body>
 
-  <div class="main-wrapper">
-    <!-- 왼쪽 일러스트 -->
-    <div class="side-left-images">
-      <img src="https://cdn-icons-png.flaticon.com/512/3082/3082031.png" alt="찌개">
-      <img src="https://cdn-icons-png.flaticon.com/512/3082/3082035.png" alt="샐러드">
-    </div>
-
-    <!-- 💬 메인 영역 -->
-    <main>
-      <!-- 🧠 상단 영역 -->
-      <header>
-        <div class="header-container">
-          <div class="robot-icon">
-            <span>🤖</span>
-          </div>
-          <h1>LunchBot</h1>
-          <p class="subtitle">오늘 뭐 먹을까?</p>
-          <p class="description">AI가 나에게 딱 맞는 점심 메뉴를 추천해드립니다 🍜</p>
-        </div>
-      </header>
-
-      <!-- 중앙 버튼 영역 -->
-      <div class="button-section">
-        <h2>함께 점심시간을 즐겨요!</h2>
-        <div class="button-container">
-          <div class="btn-login" id="btn-login">
-            로그인
-          </div>
-          <div class="btn-signup" id="btn-signup">
-            회원가입
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- 오른쪽 일러스트 -->
-    <div class="side-right-images">
-      <img src="https://cdn-icons-png.flaticon.com/512/857/857681.png" alt="디저트">
-      <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="음료">
-    </div>
+<div class="main-wrapper">
+  <!-- 🍲 왼쪽 음식 이미지 -->
+  <div class="side-left-images">
+    <img src="/img/kimchi.png" alt="김치찌개">
+    <img src="/img/pizza.png" alt="피자">
+    <img src="/img/pork.png" alt="돈까스">
+    <img src="https://cdn-icons-png.flaticon.com/512/3480/3480765.png" alt="라멘">
   </div>
 
-  <!-- 🍱 하단 영역 (카테고리) -->
-  <section>
-    <div class="category-section">
-      <h3>🍱 카테고리 선택</h3>
-      <div class="category-buttons">
-        <button class="category-btn">한식</button>
-        <button class="category-btn">중식</button>
-        <button class="category-btn">일식</button>
-        <button class="category-btn">양식</button>
-        <button class="category-btn">디저트</button>
+  <!-- 🎯 중앙 메인 -->
+  <main>
+    <header>
+      <div class="header-container">
+        <div class="main-food-icon">
+          <img src="/img/hamburger.png" alt="밥그릇">
+        </div>
+        <h1>LunchBot</h1>
+        <p class="subtitle">오늘 뭐 먹을까?</p>
+        <p class="description">AI가 당신의 기분에 딱 맞는 점심 메뉴를 추천해드립니다 🍱</p>
+      </div>
+    </header>
+
+    <div class="button-section">
+      <h2>함께 맛있는 점심시간을 즐겨요!</h2>
+      <div class="button-container">
+        <div id="btn-login" class="btn-login">로그인</div>
+        <div id="btn-signup" class="btn-signup">회원가입</div>
       </div>
     </div>
-  </section>
+  </main>
 
-  <!-- Footer -->
-  <footer>
-    © 2025 LunchBot | 당신의 점심 파트너 🍱
-  </footer>
+  <!-- 🍣 오른쪽 음식 이미지 -->
+  <div class="side-right-images">
+    <img src="https://cdn-icons-png.flaticon.com/512/3480/3480761.png" alt="핫도그">
+    <img src="/img/steak.png" alt="스테이크">
+    <img src="/img/Pancake.png" alt="팬케이크">
+    <img src="/img/Fried.png" alt="볶음밥">
+  </div>
+</div>
+
+<section>
+  <div class="category-section">
+    <h3>🍽 카테고리 선택</h3>
+    <div class="category-buttons">
+      <button class="category-btn">한식</button>
+      <button class="category-btn">중식</button>
+      <button class="category-btn">일식</button>
+      <button class="category-btn">양식</button>
+      <button class="category-btn">디저트</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2025 LunchBot | 당신의 점심 파트너 🍚
+</footer>
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

@@ -1,221 +1,212 @@
-/* LunchBot - 메인 페이지 스타일 */
-
-/* 기본 설정 */
 body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background-color: #FFF6E5;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    color: #1f2937;
-    margin: 0;
-    padding: 0;
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #FFF6E5;
+  background-image: radial-gradient(circle at 20% 30%, #fff0dc 0%, transparent 60%),
+    radial-gradient(circle at 80% 70%, #fff2dd 0%, transparent 55%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  color: #1f2937;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-/* 메인 래퍼 (일러스트 + 메인 박스) */
 .main-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 3rem;
-    width: 100%;
-    max-width: 1400px;
-    padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3rem;
+  width: 100%;
+  max-width: 1400px;
+  padding: 2rem 3rem;
+  height: 80vh; /* ✅ 높이 줄여서 한 화면에 들어오게 */
 }
 
-/* 메인 영역 */
 main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 800px;
+  text-align: center;
 }
 
-/* 상단 헤더 */
-header {
-    text-align: center;
-    margin-top: 2.5rem;
+/* 🍝 메인 음식 아이콘 */
+.main-food-icon {
+  background-color: #fdba74;
+  border-radius: 50%;
+  padding: 1.5rem;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
 }
 
-.header-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+.main-food-icon:hover {
+  transform: scale(1.05);
 }
 
-.robot-icon {
-    background-color: #fdba74;
-    border-radius: 50%;
-    padding: 1.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.robot-icon span {
-    font-size: 3rem;
+.main-food-icon img {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
 }
 
 h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #374151;
-    margin: 0;
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 1rem 0 0;
+  color: #374151;
 }
 
 .subtitle {
-    font-size: 1.875rem;
-    font-weight: 600;
-    color: #4b5563;
-    margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin: 0.4rem 0;
 }
 
 .description {
-    font-size: 1.25rem;
-    color: #374151;
-    margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: #374151;
+  margin-top: 0.5rem;
+  opacity: 0.9;
 }
 
-/* 버튼 섹션 */
+.header-container::after {
+  content: "";
+  width: 90px;
+  height: 3px;
+  background-color: #fb923c;
+  border-radius: 10px;
+  margin: 1rem auto 0;
+  display: block;
+}
+
 .button-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 2.5rem;
-}
-
-.button-section h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: #374151;
-    font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
 }
 
 .button-container {
-    display: flex;
-    gap: 2rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.btn-login, .btn-signup {
+  font-weight: 600;
+  font-size: 1.2rem;
+  padding: 1rem 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .btn-login {
-    background-color: #fb923c;
-    color: white;
-    font-weight: 600;
-    padding: 1.25rem 3rem;
-    border-radius: 1rem;
-    font-size: 1.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-    transition: background-color 0.3s;
+  background-color: #fb923c;
+  color: white;
 }
-
 .btn-login:hover {
-    background-color: #f97316;
+  background-color: #f97316;
+  transform: translateY(-3px);
 }
 
 .btn-signup {
-    background-color: #fed7aa;
-    color: #c2410c;
-    font-weight: 600;
-    padding: 1.25rem 3rem;
-    border-radius: 1rem;
-    font-size: 1.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-    transition: background-color 0.3s;
+  background-color: #fed7aa;
+  color: #c2410c;
 }
-
 .btn-signup:hover {
-    background-color: #fde68a;
+  background-color: #fde68a;
+  transform: translateY(-3px);
 }
 
-/* 왼쪽 일러스트 */
-.side-left-images {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    padding-top: 2rem;
-}
-
-.side-left-images img {
-    width: 8rem;
-    height: 8rem;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-/* 오른쪽 일러스트 */
+/* 🍣 음식 이미지 */
+.side-left-images,
 .side-right-images {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; /* ✅ space-evenly → space-between */
+  height: 80vh; /* ✅ 더 줄여서 한 화면에 맞춤 */
+  padding-top: 0.5rem;
 }
 
+.side-left-images img,
 .side-right-images img {
-    width: 8rem;
-    height: 8rem;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  width: 9rem;  /* ✅ 기존 7.2rem → 9rem */
+  height: 9rem; /* ✅ 크기 업 */
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0.95;
 }
 
-/* 하단 카테고리 섹션 */
+.side-left-images img:hover,
+.side-right-images img:hover {
+  transform: scale(1.08);
+  opacity: 1;
+}
+
 section {
-    width: 100%;
-    max-width: 80rem;
-    margin-top: 2.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 2.5rem;
+  width: 100%;
+  max-width: 80rem;
+  margin-top: 0; /* ✅ 완전 위로 올림 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .category-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60%;
 }
 
 .category-section h3 {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: #374151;
-    margin-bottom: 1.5rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 1rem;
 }
 
 .category-buttons {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  justify-content: center;
+  margin-top: 0.5rem;
 }
 
 .category-btn {
-    background-color: #fed7aa;
-    color: #9a3412;
-    padding: 0.75rem 2rem;
-    border-radius: 9999px;
-    font-size: 1.25rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #fed7aa;
+  color: #9a3412;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.7rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 .category-btn:hover {
-    background-color: #fdba74;
+  background-color: #fdba74;
+  transform: translateY(-2px);
 }
 
-/* Footer */
 footer {
-    margin-top: 2rem;
-    margin-bottom: 1.5rem;
-    color: #6b7280;
-    font-size: 0.875rem;
-    text-align: center;
+  margin-top: 1.5rem; /* ✅ footer도 살짝 위로 */
+  margin-bottom: 1rem;
+  color: #6b7280;
+  text-align: center;
+  font-size: 1rem;
 }

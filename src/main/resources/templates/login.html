@@ -1,13 +1,41 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/login.css}">
-    <title>Document</title>
+    <title>LunchBot 로그인</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css">
 </head>
+
 <body>
-    
+<div class="login-container">
+    <img src="/img/robot.png" alt="LunchBot 로봇" class="robot-icon" onerror="this.style.display='none'">
+    <h1>LunchBot 로그인</h1>
+    <p class="subtitle">AI가 당신의 점심 메뉴를 도와드릴게요 🍱</p>
+
+    <form action="/login" method="post">
+        <div class="input-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required>
+        </div>
+
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+
+        <button type="submit" class="login-btn">로그인</button>
+    </form>
+
+    <div class="footer-link">
+        계정이 없으신가요? <a href="/signup">회원가입하기</a>
+    </div>
+
+    <div class="bottom-illustration">
+        <img src="/img/lunchbox.png" alt="도시락">
+        <div class="bottom-text">오늘도 맛있는 점심시간 되세요!</div>
+    </div>
+</div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </html>
