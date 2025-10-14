@@ -8,15 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ChatFoodController {
 
     @GetMapping("/chatFood")
-    public String chatFood(Model model) {
-        model.addAttribute("message", "ChatFood에 오신 것을 환영합니다!");
+    public String chatFood() {
         return "chatFood";
-    }
-
-    @GetMapping("/foodMap")
-    public String foodMap(Model model) {
-        model.addAttribute("message", "ChatFood에 오신 것을 환영합니다!");
-        return "foodMap";
     }
 
 }
