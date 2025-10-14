@@ -1,0 +1,88 @@
+# ChatFood
+
+Spring Boot 기반의 ChatFood 애플리케이션입니다.
+
+## 기술 스택
+
+- Java 17
+- Spring Boot 3.2.0
+- Gradle 8.5
+- Spring Data JPA
+- H2 Database (개발용)
+- Lombok
+
+## 프로젝트 실행 방법
+
+### 1. 빌드
+
+```bash
+# Windows
+gradlew.bat build
+
+# Linux/Mac
+./gradlew build
+```
+
+### 2. 실행
+
+```bash
+# Windows
+gradlew.bat bootRun
+
+# Linux/Mac
+./gradlew bootRun
+```
+
+또는 빌드 후 jar 파일 직접 실행:
+
+```bash
+java -jar build/libs/ChatFood-0.0.1-SNAPSHOT.jar
+```
+
+### 3. 접속
+
+- 애플리케이션: http://localhost:8080
+- H2 Console: http://localhost:8080/h2-console
+  - JDBC URL: `jdbc:h2:mem:chatfood`
+  - Username: `sa`
+  - Password: (비어있음)
+
+## 프로젝트 구조
+
+```
+ChatFood/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── chatfood/
+│   │   │           ├── ChatFoodApplication.java
+│   │   │           └── controller/
+│   │   │               └── HomeController.java
+│   │   └── resources/
+│   │       └── application.properties
+│   └── test/
+│       └── java/
+│           └── com/
+│               └── chatfood/
+│                   └── ChatFoodApplicationTests.java
+├── build.gradle
+├── settings.gradle
+└── gradlew
+```
+
+## 개발 환경 설정
+
+### 필수 요구사항
+
+- JDK 17 이상
+- Gradle 8.5 (wrapper 포함)
+
+## API 엔드포인트
+
+- `GET /` - 웰컴 메시지
+
+## 라이센스
+
+이 프로젝트는 MIT 라이센스를 따릅니다.
+

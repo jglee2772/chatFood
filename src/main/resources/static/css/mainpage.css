@@ -1,0 +1,221 @@
+/* LunchBot - 메인 페이지 스타일 */
+
+/* 기본 설정 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #FFF6E5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    color: #1f2937;
+    margin: 0;
+    padding: 0;
+}
+
+/* 메인 래퍼 (일러스트 + 메인 박스) */
+.main-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 3rem;
+    width: 100%;
+    max-width: 1400px;
+    padding: 2rem;
+}
+
+/* 메인 영역 */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 800px;
+}
+
+/* 상단 헤더 */
+header {
+    text-align: center;
+    margin-top: 2.5rem;
+}
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.robot-icon {
+    background-color: #fdba74;
+    border-radius: 50%;
+    padding: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.robot-icon span {
+    font-size: 3rem;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #374151;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin: 0;
+}
+
+.description {
+    font-size: 1.25rem;
+    color: #374151;
+    margin-top: 0.5rem;
+}
+
+/* 버튼 섹션 */
+.button-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2.5rem;
+}
+
+.button-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+.button-container {
+    display: flex;
+    gap: 2rem;
+}
+
+.btn-login {
+    background-color: #fb923c;
+    color: white;
+    font-weight: 600;
+    padding: 1.25rem 3rem;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #f97316;
+}
+
+.btn-signup {
+    background-color: #fed7aa;
+    color: #c2410c;
+    font-weight: 600;
+    padding: 1.25rem 3rem;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-signup:hover {
+    background-color: #fde68a;
+}
+
+/* 왼쪽 일러스트 */
+.side-left-images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding-top: 2rem;
+}
+
+.side-left-images img {
+    width: 8rem;
+    height: 8rem;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* 오른쪽 일러스트 */
+.side-right-images {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding-top: 2rem;
+}
+
+.side-right-images img {
+    width: 8rem;
+    height: 8rem;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* 하단 카테고리 섹션 */
+section {
+    width: 100%;
+    max-width: 80rem;
+    margin-top: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 2.5rem;
+}
+
+.category-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60%;
+}
+
+.category-section h3 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 1.5rem;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.category-btn {
+    background-color: #fed7aa;
+    color: #9a3412;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.category-btn:hover {
+    background-color: #fdba74;
+}
+
+/* Footer */
+footer {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    text-align: center;
+}
