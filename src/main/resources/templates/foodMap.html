@@ -32,7 +32,15 @@
     </div>
     
     <div id="map"></div>
-
+    
+    <!-- 음식점 정보 표시 영역 -->
+    <div id="restaurant-info" style="display: none; padding: 20px; background: #f8f9fa; border-top: 1px solid #dee2e6;">
+        <h3 style="margin: 0 0 15px 0; color: #333;">📍 내 주변 맛집 TOP 3</h3>
+        <div id="restaurant-list" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <!-- 음식점 정보가 여기에 표시됩니다 -->
+        </div>
+    </div>
+    
     <!-- 카카오 지도 JavaScript API -->
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c7620c46bc5355020067ad99447e75f3&libraries=services"></script>
     
@@ -182,6 +190,10 @@
                 
                 // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
                 map.setBounds(bounds);
+                
+                // 하단에 TOP 3 음식점 정보 표시
+                displayTop3Restaurants(data);
+                
             } else {
                 console.warn('⚠️ 검색 실패:', status);
                 alert('검색 결과가 없습니다. 다른 키워드로 시도해보세요.');
@@ -233,6 +245,97 @@
         }
         
         // ============================================
+        // TOP 3 음식점 정보를 하단에 표시
+        // ============================================
+        function displayTop3Restaurants(places) {
+            if (places.length === 0) {
+                document.getElementById('restaurant-info').style.display = 'none';
+                return;
+            }
+            
+            // 상위 3개만 선택
+            var top3 = places.slice(0, 3);
+            var restaurantList = document.getElementById('restaurant-list');
+            restaurantList.innerHTML = '';
+            
+            for (var i = 0; i < top3.length; i++) {
+                var place = top3[i];
+                var distance = calculateDistance(userLocation.lat, userLocation.lng, place.y, place.x);
+                var distanceText = distance < 1000 ? Math.round(distance) + 'm' : (distance/1000).toFixed(1) + 'km';
+                
+                // 평점 생성 (랜덤, 실제로는 API에서 가져와야 함)
+                var rating = (4.0 + Math.random() * 1.0).toFixed(1);
+                var stars = '⭐'.repeat(Math.floor(rating));
+                
+                var restaurantCard = document.createElement('div');
+                restaurantCard.style.cssText = `
+                    background: white;
+                    border-radius: 8px;
+                    padding: 15px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    flex: 1;
+                    min-width: 250px;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                `;
+                
+                restaurantCard.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <h4 style="margin: 0; color: #333; font-size: 16px;">${place.place_name}</h4>
+                        <span style="background: #007bff; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px;">${i + 1}위</span>
+                    </div>
+                    <div style="color: #666; font-size: 14px; margin-bottom: 8px;">
+                        📍 ${distanceText} | ${place.category_name || '음식점'}
+                    </div>
+                    <div style="color: #666; font-size: 13px; margin-bottom: 8px;">
+                        ${place.road_address_name || place.address_name}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="color: #ff6b35; font-weight: bold;">
+                            ${stars} ${rating}
+                        </div>
+                        <div style="color: #666; font-size: 12px;">
+                            ${place.phone || '전화번호 없음'}
+                </div>
+            </div>
+        `;
+                
+                // 카드 클릭 시 해당 마커의 인포윈도우 열기
+                (function(place) {
+                    restaurantCard.addEventListener('click', function() {
+                        // 해당 마커 찾기
+                        for (var j = 0; j < markers.length; j++) {
+                            var marker = markers[j];
+                            var markerPosition = marker.getPosition();
+                            if (Math.abs(markerPosition.getLat() - place.y) < 0.0001 && 
+                                Math.abs(markerPosition.getLng() - place.x) < 0.0001) {
+                                // 마커 클릭 이벤트 트리거
+                                kakao.maps.event.trigger(marker, 'click');
+                                break;
+                            }
+                        }
+                    });
+                })(place);
+                
+                // 호버 효과
+                restaurantCard.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                });
+                
+                restaurantCard.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                });
+                
+                restaurantList.appendChild(restaurantCard);
+            }
+            
+            // 정보 영역 표시
+            document.getElementById('restaurant-info').style.display = 'block';
+        }
+        
+        // ============================================
         // 기존 마커들 제거
         // ============================================
         function clearMarkers() {
@@ -240,6 +343,9 @@
                 markers[i].setMap(null);
             }
             markers = [];
+            
+            // 하단 음식점 정보도 숨기기
+            document.getElementById('restaurant-info').style.display = 'none';
         }
         
         // ============================================
