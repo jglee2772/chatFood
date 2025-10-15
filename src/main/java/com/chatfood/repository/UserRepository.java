@@ -25,10 +25,22 @@ import com.chatfood.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     
-    // 여기에 필요한 커스텀 쿼리 메서드를 추가하세요
-    // 예: Optional<User> findByUsername(String username);
-    //     boolean existsByEmail(String email);
+    /**
+     * 이메일로 사용자 조회
+     * @param email 이메일
+     * @return 사용자 정보 (Optional)
+     */
+    Optional<User> findByEmail(String email);
+    
+    /**
+     * 이메일 중복 체크
+     * @param email 이메일
+     * @return 존재 여부
+     */
+    boolean existsByEmail(String email);
 }

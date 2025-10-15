@@ -1,0 +1,227 @@
+/* ================================
+   LunchBot 회원가입 페이지 (로그인창 완전 동일 버전)
+   ================================ */
+
+/* 🧡 기본 배경 */
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: linear-gradient(135deg, #FFF3E1 0%, #FFE0B2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  color: #3b2e25;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ☀️ 부드러운 햇살 효과 */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 210, 130, 0.25) 0%, transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(255, 220, 180, 0.25) 0%, transparent 60%),
+    url('https://www.transparenttextures.com/patterns/white-wall.png');
+  opacity: 0.9;
+  z-index: 0;
+}
+
+/* 🌞 중심 빛 */
+.light-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 800px;
+  height: 800px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 220, 160, 0.45) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: glow-move 8s ease-in-out infinite alternate;
+  filter: blur(80px);
+  z-index: 0;
+}
+@keyframes glow-move {
+  0% { transform: translate(-48%, -52%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.6; }
+  100% { transform: translate(-52%, -48%) scale(1); opacity: 0.75; }
+}
+
+/* 🍱 회원가입 카드 (로그인 크기와 동일) */
+.signup-container {
+  background-color: #fffaf3;
+  border-radius: 2rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  width: 400px; /* ✅ 로그인 카드와 동일 */
+  padding: 3rem 2.5rem; /* ✅ 동일 여백 */
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  animation: fadeIn 0.6s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 로고 */
+.signup-icon {
+  width: 70px;
+  background-color: #fffaf3;
+  border-radius: 50%;
+  padding: 10px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 텍스트 */
+h1 {
+  margin-top: 2.5rem;
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: #3b2e25;
+}
+.subtitle {
+  color: #7c6754;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* 입력 그룹 */
+.input-group {
+  margin-bottom: 1.3rem;
+  text-align: left;
+}
+.input-group label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.input-group input {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  border-radius: 1rem;
+  border: 1.8px solid #f5c38a;
+  background-color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+.input-group input:focus {
+  border-color: #fb923c;
+  box-shadow: 0 0 0 3px rgba(251,146,60,0.15);
+}
+
+/* 에러 텍스트 */
+.error-text {
+  display: none;
+  color: #e53e3e;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+
+/* 버튼 */
+.signup-btn {
+  background-color: #fb923c;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+.signup-btn:hover {
+  background-color: #f97316;
+  transform: translateY(-2px);
+}
+
+/* 푸터 링크 */
+.footer-link {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+}
+.footer-link a {
+  color: #fb923c;
+  font-weight: 600;
+  text-decoration: none;
+}
+.footer-link a:hover {
+  text-decoration: underline;
+}
+
+/* 🍜 양옆 음식 아이콘 (로그인 페이지 크기와 동일) */
+.side-left, .side-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 65vh;
+  z-index: 1;
+  pointer-events: none;
+}
+.side-left { left: 9%; }
+.side-right { right: 9%; }
+
+.side-left img, .side-right img {
+  width: 140px; /* ✅ 로그인 페이지 이모티콘 크기 */
+  height: 140px;
+  object-fit: contain;
+  animation: float-up 5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+  transition: transform 0.3s ease;
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+.side-left img:hover, .side-right img:hover {
+  transform: scale(1.12);
+}
+
+/* 🏠 홈 버튼 */
+.home-btn {
+  position: absolute;
+  top: 25px;
+  right: 35px;
+  font-size: 32px;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+  z-index: 3;
+  color: #ff7b2f;
+  text-shadow: 1px 1px 3px rgba(255, 120, 0, 0.3);
+}
+.home-btn:hover {
+  transform: scale(1.2);
+  color: #ff5400;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+  .side-left, .side-right {
+    display: none;
+  }
+  .signup-container {
+    width: 90%;
+    padding: 2.5rem 1.5rem;
+  }
+  h1 {
+    font-size: 1.6rem;
+  }
+}

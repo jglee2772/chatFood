@@ -1,12 +1,47 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/chatFood.css">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LunchBot - 오늘 뭐 먹을까?</title>
+    <link rel="stylesheet" href="/css/chatFood.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
+
 <body>
+<div class="chat-wrapper">
+
+    <!-- 로고 영역 -->
+    <div class="logo-section">
+        <div class="logo-icon">🤖</div>
+        <h1>LunchBot <span>오늘 뭐 먹을까?</span></h1>
+    </div>
+
+    <!-- 메인 대화창 -->
+    <div class="chat-container">
+
+        <!-- 왼쪽 (챗봇 대화) -->
+        <div class="chat-left">
+            <div class="bot-message">안녕하세요!<br>오늘 점심 메뉴 고민되시죠?</div>
+            <div class="user-message">네! 매운 거 먹고 싶어요.</div>
+
+            <!-- 입력창 -->
+            <div class="input-area">
+                <input type="text" placeholder="메시지를 입력하세요..." />
+                <button class="send-btn">전송</button>
+            </div>
+        </div>
+
+        <!-- 오른쪽 (최근 대화 기록) -->
+        <div class="chat-right">
+            <h3>최근 대화 기록</h3>
+            <ul class="history-list">
+                <li><span>10/07</span> 김치찌개</li>
+                <li><span>10/06</span> 초밥</li>
+                <li><span>10/05</span> 돈까스</li>
+            </ul>
+        </div>
+    </div>
+</div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </html>

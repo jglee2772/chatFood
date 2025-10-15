@@ -1,13 +1,125 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/signup.css">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LunchBot 회원가입</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/signpage.css">
 </head>
+
 <body>
-    
-</body>
+<div class="light-glow"></div>
+<div class="home-btn" onclick="window.location.href='/'">🏠</div>
+
+<div class="signup-container">
+<!--    <img th:src="@{/img/nobot.png}" alt="LunchBot 로고" class="signup-icon" />-->
+    <h1>LunchBot 회원가입</h1>
+    <p class="subtitle">AI가 나에게 딱 맞는 점심 메뉴를 추천해드려요 🍱</p>
+
+    <form id="signupForm" onsubmit="return checkPasswords()">
+        <div class="input-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required />
+        </div>
+
+        <div class="input-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" placeholder="example@email.com" required />
+        </div>
+
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
+        </div>
+
+        <div class="input-group">
+            <label for="confirm-password">비밀번호 재확인</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="비밀번호를 다시 입력하세요" required />
+            <p class="error-text" id="error-text">⚠️ 비밀번호가 일치하지 않습니다</p>
+        </div>
+
+        <button type="submit" class="signup-btn">가입하기</button>
+    </form>
+
+    <div class="footer-link">
+        <a th:href="@{/login}">로그인으로 돌아가기</a>
+    </div>
+</div>
+
+<!-- 🍜 좌우 음식 아이콘 -->
+<div class="side-left">
+    <img src="/img/Kimchi.png" alt="김치찌개" />
+    <img src="/img/pizza.png" alt="피자" />
+    <img src="/img/라멘.png" alt="라멘" />
+</div>
+
+<div class="side-right">
+    <img src="/img/도시락.png" alt="도시락" />
+    <img src="/img/타코.png" alt="타코" />
+    <img src="/img/pork.png" alt="오므라이스" />
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // 비밀번호 확인
+    function checkPasswords() {
+        const pw = document.getElementById('password').value;
+        const confirmPw = document.getElementById('confirm-password').value;
+        const errorText = document.getElementById('error-text');
+        
+        if (pw !== confirmPw) {
+            errorText.style.display = 'block';
+            return false;
+        } else {
+            errorText.style.display = 'none';
+            
+            // 비밀번호가 일치하면 회원가입 처리
+            handleSignup();
+            return false; // 기본 form 제출 방지
+        }
+    }
+
+    // 회원가입 처리
+    function handleSignup() {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        // 로딩 상태 표시
+        const submitBtn = document.querySelector('.signup-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '가입 중...';
+        submitBtn.disabled = true;
+
+        // 회원가입 API 호출
+        axios.post('/api/users/register', {
+            name: name,
+            email: email,
+            password: password
+        })
+        .then(response => {
+            if (response.data.success) {
+                alert('🎉 ' + response.data.message + '\n로그인 페이지로 이동합니다.');
+                window.location.href = '/login';
+            } else {
+                alert('❌ ' + response.data.message);
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            if (error.response && error.response.data && error.response.data.message) {
+                alert('❌ ' + error.response.data.message);
+            } else {
+                alert('❌ 회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
+    }
+</script>
+</body>
 </html>

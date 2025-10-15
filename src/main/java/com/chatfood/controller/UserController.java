@@ -1,41 +1,109 @@
 package com.chatfood.controller;
 
-/**
- * Controller (컨트롤러) - 웹 요청을 받아서 처리하는 클래스
- * 
- * 역할:
- * - 클라이언트의 HTTP 요청을 받아서 Service 호출
- * - Service에서 받은 결과를 클라이언트에게 응답
- * - URL 경로와 메서드를 매핑
- * 
- * 주요 어노테이션:
- * - @Controller : HTML 페이지를 반환하는 컨트롤러
- * - @RestController : JSON 데이터를 반환하는 API 컨트롤러
- * - @GetMapping : GET 요청 처리 (조회)
- * - @PostMapping : POST 요청 처리 (생성)
- * - @PutMapping : PUT 요청 처리 (수정)
- * - @DeleteMapping : DELETE 요청 처리 (삭제)
- * 
- * 사용 예시:
- * - @GetMapping("/login") : 로그인 페이지 보여주기
- * - @PostMapping("/api/users") : 회원가입 처리
- * - @GetMapping("/api/users/{id}") : 특정 사용자 조회
- */
-
+import com.chatfood.entity.User;
 import com.chatfood.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 사용자 관련 요청을 처리하는 컨트롤러
+ */
 @Controller
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    // 여기에 필요한 API 엔드포인트를 추가하세요
-    // 예: @PostMapping("/api/users/register") - 회원가입 처리
-    //     @PostMapping("/api/users/login") - 로그인 처리
-    //     @GetMapping("/api/users") - 사용자 목록 조회
-    
-    // 참고: 로그인/회원가입 페이지는 HomeController에 이미 정의되어 있습니다.
+    /**
+     * 회원가입 API
+     */
+    @PostMapping("/register")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> register(@RequestBody User user) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 입력 검증
+            if (user.getName() == null || user.getName().trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "이름을 입력해주세요.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "이메일을 입력해주세요.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "비밀번호를 입력해주세요.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // 회원가입 처리
+            User savedUser = userService.registerUser(user);
+            
+            response.put("success", true);
+            response.put("message", "회원가입이 완료되었습니다!");
+            response.put("userId", savedUser.getId());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * 로그인 API
+     */
+    @PostMapping("/login")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            String email = loginRequest.get("email");
+            String password = loginRequest.get("password");
+            
+            var userOpt = userService.login(email, password);
+            
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                response.put("success", true);
+                response.put("message", "로그인 성공!");
+                response.put("userId", user.getId());
+                response.put("name", user.getName());
+                
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "이메일 또는 비밀번호가 일치하지 않습니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "로그인 중 오류가 발생했습니다.");
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
 }

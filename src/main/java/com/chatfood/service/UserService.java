@@ -1,35 +1,67 @@
 package com.chatfood.service;
 
-/**
- * Service (서비스) - 비즈니스 로직을 처리하는 클래스
- * 
- * 역할:
- * - Repository를 사용해서 실제 비즈니스 로직 구현
- * - Controller와 Repository 사이의 중간 계층
- * - 복잡한 로직, 검증, 트랜잭션 처리 등을 담당
- * 
- * 사용 예시:
- * - 회원가입: 중복 체크 + 비밀번호 암호화 + 저장
- * - 로그인: 인증 처리
- * - 데이터 조회: Repository에서 가져온 데이터 가공
- * - 데이터 수정/삭제: 권한 확인 후 처리
- * 
- * Repository 사용 방법:
- * - @RequiredArgsConstructor로 자동 주입받아 사용
- * - userRepository.save(), findById() 등의 메서드 호출
- */
-
+import com.chatfood.entity.User;
 import com.chatfood.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
+/**
+ * 사용자 관련 비즈니스 로직을 처리하는 서비스
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
 
-    // 여기에 비즈니스 로직 메서드를 추가하세요
-    // 예: public User registerUser(User user) { ... }
-    //     public User login(String username, String password) { ... }
+    /**
+     * 회원가입
+     * @param user 회원가입할 사용자 정보
+     * @return 저장된 사용자 정보
+     * @throws IllegalArgumentException 이미 존재하는 이메일인 경우
+     */
+    @Transactional
+    public User registerUser(User user) {
+        // 이메일 중복 체크
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+        
+        // TODO: 비밀번호 암호화 (나중에 Spring Security 추가 시)
+        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        return userRepository.save(user);
+    }
+
+    /**
+     * 이메일로 사용자 조회
+     * @param email 이메일
+     * @return 사용자 정보 (Optional)
+     */
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    /**
+     * 로그인
+     * @param email 이메일
+     * @param password 비밀번호
+     * @return 로그인 성공 시 사용자 정보 (Optional)
+     */
+    public Optional<User> login(String email, String password) {
+        return userRepository.findByEmail(email)
+                .filter(user -> user.getPassword().equals(password));
+    }
+
+    /**
+     * ID로 사용자 조회
+     * @param id 사용자 ID
+     * @return 사용자 정보 (Optional)
+     */
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 }
