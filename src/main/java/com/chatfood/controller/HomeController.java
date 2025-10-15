@@ -1,7 +1,6 @@
 package com.chatfood.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -20,6 +19,11 @@ public class HomeController {
     @GetMapping("/signup")
     public String signup() {
         return "signup";
+    }
+
+    @GetMapping("/foodMap")
+    public String foodMap() {
+        return "foodMap";
     }
 
 }
