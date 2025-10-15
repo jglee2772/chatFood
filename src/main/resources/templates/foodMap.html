@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/foodMap.css">
     <title>맛집 지도 - LunchBot</title>
-    <!-- REST API 사용 - JavaScript API 제거 -->
+    <link rel="stylesheet" href="/css/foodMap.css">
 </head>
 <body>
-
     <header>
         <div class="header-container">
-            <p>LunchBot 오늘 뭐 먹을까?</p>
+            <p>LunchBot - 맛집 검색</p>
             <div class="input-group">
-                <label for="search-food">음식 검색</label>
-                <input type="text" id="search-food" name="search-food" placeholder="음식/장소를 입력하세요">
+                <label for="search-input">맛집 검색</label>
+                <input type="text" id="search-input" placeholder="예: 초밥, 피자, 치킨">
                 <button id="search-btn" class="search-btn">검색</button>
             </div>
         </div>
@@ -23,189 +21,361 @@
     <div class="main-wrapper">
         <div class="main-content">
             <div class="upper-content">
-                <div class="upper-map" id="map">
-                    <!-- 네이버 지도가 여기에 표시됩니다 -->
-                </div>
+                <div id="map" class="upper-map"></div>
             </div>
             <div class="lower-content">
-                <div class="short-info" id="search-result">
-                    <h4>검색 결과</h4>
-                    <p>음식이나 장소를 검색해보세요!</p>
+                <div class="short-info" id="result-list">
+                    <h4>🍽️ 검색 결과</h4>
+                    <p>음식 이름이나 가게를 검색해보세요!</p>
                 </div>
-                <div class="short-info" id="place-info">
-                    <h4>장소 정보</h4>
-                    <p>지도에서 장소를 선택하세요.</p>
+                <div class="short-info" id="detail-info">
+                    <h4>🍽️ 맛집 정보</h4>
+                    <p>검색 결과를 클릭하면 상세 정보가 표시됩니다.</p>
                 </div>
             </div>
-        </div>
-        <div class="right-side-content">
-
         </div>
     </div>
-    
-</body>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    // REST API 방식으로 지도 표시
-    document.addEventListener('DOMContentLoaded', function() {
-        // 지도 컨테이너 초기화
-        initMapDisplay();
-        
-        // 검색 버튼 클릭 이벤트
-        document.getElementById('search-btn').addEventListener('click', searchFood);
-        
-        // 엔터키로 검색
-        document.getElementById('search-food').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchFood();
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:inline="javascript">
+        // ============================================
+        // 전역 변수
+        // ============================================
+        let map;
+        let markers = [];
+        let restaurants = [];
+        const KAKAO_JS_KEY = /*[[${kakaoJsKey}]]*/ '';
+
+        // ============================================
+        // 초기화
+        // ============================================
+        window.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await loadKakaoMapScript();
+                initMap();
+                initEventListeners();
+            } catch (error) {
+                showErrorMessage(error.message);
             }
         });
-    });
 
-    // 지도 표시 초기화 (REST API 방식)
-    function initMapDisplay() {
-        const mapContainer = document.getElementById('map');
-        mapContainer.innerHTML = `
-            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; text-align: center; position: relative;">
-                <div>
-                    <h3 style="margin-bottom: 20px; font-size: 24px;">🗺️ 맛집 지도</h3>
-                    <p style="margin-bottom: 15px;">음식이나 장소를 검색해보세요!</p>
-                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 20px; font-size: 14px;">
-                            📍 검색
-                        </div>
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 20px; font-size: 14px;">
-                            🍽️ 맛집
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
+        // ============================================
+        // 카카오 지도 스크립트 로드
+        // ============================================
+        function loadKakaoMapScript() {
+            return new Promise((resolve, reject) => {
+                if (!KAKAO_JS_KEY || KAKAO_JS_KEY.includes('발급받은')) {
+                    reject(new Error('카카오 JavaScript 키가 설정되지 않았습니다.'));
+                    return;
+                }
 
-    // 음식/장소 검색 함수 (REST API)
-    function searchFood() {
-        const query = document.getElementById('search-food').value.trim();
-        
-        if (!query) {
-            alert('검색어를 입력해주세요!');
-            return;
+                const script = document.createElement('script');
+                script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_JS_KEY}&autoload=false`;
+                script.onload = () => {
+                    kakao.maps.load(() => {
+                        console.log('✅ 카카오 지도 SDK 로드 완료');
+                        resolve();
+                    });
+                };
+                script.onerror = () => reject(new Error('카카오 지도 스크립트 로드 실패'));
+                document.head.appendChild(script);
+            });
         }
-        
-        console.log('검색 시작:', query);
-        
-        // 검색 중 표시
-        document.getElementById('search-result').innerHTML = `
-            <h4>🔍 검색 중...</h4>
-            <p>${query}를 검색하고 있습니다...</p>
-        `;
-        
-        // 서버에 검색 요청 (REST API) - axios 사용
-        axios.get(`/api/map/search`, {
-            params: {
-                query: query
-            },
-            timeout: 10000 // 10초 타임아웃
-        })
-        .then(response => {
-            console.log('axios 응답:', response);
-            console.log('응답 데이터:', response.data);
-            
-            const data = response.data;
-            
-            if (data.error) {
-                // 에러 응답 처리
-                document.getElementById('search-result').innerHTML = `
-                    <h4>❌ 검색 오류</h4>
-                    <p>${data.message || data.error}</p>
-                `;
+
+        // ============================================
+        // 지도 초기화
+        // ============================================
+        function initMap() {
+            const container = document.getElementById('map');
+            const options = {
+                center: new kakao.maps.LatLng(37.5665, 126.9780),
+                level: 5
+            };
+            map = new kakao.maps.Map(container, options);
+            console.log('✅ 지도 초기화 완료');
+        }
+
+        // ============================================
+        // 이벤트 리스너 등록
+        // ============================================
+        function initEventListeners() {
+            document.getElementById('search-btn').addEventListener('click', searchRestaurants);
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchRestaurants();
+            });
+        }
+
+        // ============================================
+        // 맛집 검색
+        // ============================================
+        function searchRestaurants() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                alert('검색어를 입력해주세요!');
                 return;
             }
-            
-            if (data.addresses && data.addresses.length > 0) {
-                // 첫 번째 결과 사용
-                const firstResult = data.addresses[0];
-                console.log('검색 결과:', firstResult);
-                
-                // 지도 업데이트 (REST API 결과 표시)
-                updateMapWithResult(firstResult);
-                
-                // 검색 결과 표시
-                displaySearchResult(firstResult);
-            } else {
-                alert('검색 결과가 없습니다.');
-                document.getElementById('search-result').innerHTML = `
-                    <h4>❌ 검색 결과 없음</h4>
-                    <p>검색 결과가 없습니다. 다른 검색어를 입력해보세요.</p>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('axios 오류:', error);
-            
-            if (error.response) {
-                // 서버에서 응답을 받았지만 오류 상태
-                console.error('응답 오류:', error.response.status, error.response.data);
-                document.getElementById('search-result').innerHTML = `
-                    <h4>❌ 서버 오류</h4>
-                    <p>서버 오류 (${error.response.status}): ${error.response.data}</p>
-                `;
-            } else if (error.request) {
-                // 요청이 전송되었지만 응답을 받지 못함
-                console.error('네트워크 오류:', error.request);
-                document.getElementById('search-result').innerHTML = `
-                    <h4>❌ 네트워크 오류</h4>
-                    <p>서버에 연결할 수 없습니다.</p>
-                `;
-            } else {
-                // 요청 설정 중 오류
-                console.error('요청 오류:', error.message);
-                document.getElementById('search-result').innerHTML = `
-                    <h4>❌ 요청 오류</h4>
-                    <p>${error.message}</p>
-                `;
-            }
-        });
-    }
 
-    // REST API 결과로 지도 업데이트
-    function updateMapWithResult(result) {
-        const mapContainer = document.getElementById('map');
-        const lat = parseFloat(result.y);
-        const lng = parseFloat(result.x);
-        
-        mapContainer.innerHTML = `
-            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; text-align: center; position: relative;">
-                <div>
-                    <h3 style="margin-bottom: 20px; font-size: 24px;">📍 ${result.roadAddress || result.jibunAddress}</h3>
-                    <p style="margin-bottom: 15px;">위도: ${lat.toFixed(6)}, 경도: ${lng.toFixed(6)}</p>
-                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                        <div style="background: rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 20px; font-size: 14px;">
-                            📍 위치 확인됨
-                        </div>
-                        <div style="background: rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 20px; font-size: 14px;">
-                            🗺️ 지도 표시
-                        </div>
+            showLoadingMessage(query);
+            clearMarkers();
+
+            // 현재 지도 중심 좌표 가져오기
+            const center = map.getCenter();
+            
+            const params = {
+                query: query,
+                x: center.getLng(),  // 경도
+                y: center.getLat(),  // 위도
+                radius: 20000        // 검색 반경 20km
+            };
+
+            console.log('🔍 검색 파라미터:', params);
+
+            axios.get('/api/restaurants/search', { params: params, timeout: 10000 })
+                .then(response => handleSearchSuccess(response.data, query))
+                .catch(error => handleSearchError(error));
+        }
+
+        // ============================================
+        // 검색 성공 처리
+        // ============================================
+        function handleSearchSuccess(data, query) {
+            // 응답 데이터 전체 출력 (디버깅용)
+            console.log('📦 API 응답 데이터:', data);
+            console.log('📦 documents:', data.documents);
+            console.log('📦 meta:', data.meta);
+            
+            if (data.error === 'API_KEY_NOT_CONFIGURED') {
+                showApiKeyGuide();
+                return;
+            }
+
+            if (data.error) {
+                console.error('❌ 에러 발생:', data.error, data.message);
+                showErrorResult(data.message || data.error);
+                return;
+            }
+
+            if (data.documents && data.documents.length > 0) {
+                restaurants = data.documents;
+                displayResults(data.documents);
+                showMarkers(data.documents);
+                moveMapToFirstResult(data.documents[0]);
+                console.log(`✅ 검색 완료: ${data.documents.length}개 결과`);
+            } else {
+                console.warn('⚠️ 검색 결과 없음. documents:', data.documents);
+                showNoResult(query);
+            }
+        }
+
+        // ============================================
+        // 검색 오류 처리
+        // ============================================
+        function handleSearchError(error) {
+            console.error('❌ 검색 오류:', error);
+            document.getElementById('result-list').innerHTML = `
+                <h4>❌ 검색 오류</h4>
+                <p>검색 중 문제가 발생했습니다.</p>
+            `;
+        }
+
+        // ============================================
+        // 검색 결과 표시
+        // ============================================
+        function displayResults(items) {
+            let html = `<h4>🍽️ 검색 결과 (${items.length}개)</h4>`;
+            html += '<div style="max-height: 350px; overflow-y: auto;">';
+
+            items.forEach((item, index) => {
+                html += createResultItem(item, index);
+            });
+
+            html += '</div>';
+            document.getElementById('result-list').innerHTML = html;
+            showDetail(items[0]);
+        }
+
+        // ============================================
+        // 검색 결과 아이템 생성
+        // ============================================
+        function createResultItem(item, index) {
+            const placeName = item.place_name;
+            const address = item.road_address_name || item.address_name;
+            const category = item.category_name;
+            const distance = item.distance ? `📏 ${item.distance}m` : '';
+
+            return `
+                <div onclick="selectRestaurant(${index})" style="
+                    padding: 12px;
+                    margin: 8px 0;
+                    background: white;
+                    border-radius: 8px;
+                    border: 2px solid ${index === 0 ? '#FF914D' : '#e0e0e0'};
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " onmouseover="this.style.borderColor='#FF914D'" 
+                   onmouseout="this.style.borderColor='${index === 0 ? '#FF914D' : '#e0e0e0'}'">
+                    <p style="font-weight: bold; color: #333; margin-bottom: 5px; font-size: 15px;">
+                        ${index + 1}. ${placeName}
+                    </p>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 3px;">📍 ${address}</p>
+                    <p style="font-size: 12px; color: #999;">🏷️ ${category} ${distance}</p>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // 마커 표시
+        // ============================================
+        function showMarkers(items) {
+            items.forEach((item, index) => {
+                const position = new kakao.maps.LatLng(item.y, item.x);
+                const marker = createMarker(position, item, index);
+                markers.push(marker);
+            });
+            console.log(`✅ ${markers.length}개 마커 생성 완료`);
+        }
+
+        // ============================================
+        // 마커 생성
+        // ============================================
+        function createMarker(position, item, index) {
+            const marker = new kakao.maps.Marker({
+                position: position,
+                map: map
+            });
+
+            const infowindow = new kakao.maps.InfoWindow({
+                content: createInfoWindowContent(item, index)
+            });
+
+            kakao.maps.event.addListener(marker, 'click', function() {
+                closeAllInfoWindows();
+                infowindow.open(map, marker);
+                selectRestaurant(index);
+            });
+
+            return { marker, infowindow };
+        }
+
+        // ============================================
+        // 인포윈도우 콘텐츠 생성
+        // ============================================
+        function createInfoWindowContent(item, index) {
+            return `
+                <div style="padding:10px; min-width:200px;">
+                    <div style="font-weight:bold; color:#FF914D; margin-bottom:5px;">
+                        ${index + 1}. ${item.place_name}
+                    </div>
+                    <div style="font-size:12px; color:#666;">
+                        ${item.road_address_name || item.address_name}
                     </div>
                 </div>
-            </div>
-        `;
-    }
+            `;
+        }
 
-    // 검색 결과 표시
-    function displaySearchResult(result) {
-        const resultDiv = document.getElementById('search-result');
-        resultDiv.innerHTML = `
-            <h4>📍 검색 결과</h4>
-            <p><strong>${result.roadAddress || result.jibunAddress}</strong></p>
-            <p style="font-size: 14px; color: #666;">위도: ${result.y}, 경도: ${result.x}</p>
-        `;
-        
-        const placeDiv = document.getElementById('place-info');
-        placeDiv.innerHTML = `
-            <h4>🍽️ 장소 정보</h4>
-            <p>${result.roadAddress || result.jibunAddress}</p>
-        `;
-    }
-</script>
+        // ============================================
+        // 맛집 선택
+        // ============================================
+        function selectRestaurant(index) {
+            const item = restaurants[index];
+            const position = new kakao.maps.LatLng(item.y, item.x);
+            
+            map.panTo(position);
+            map.setLevel(3);
+            showDetail(item);
+            
+            closeAllInfoWindows();
+            markers[index].infowindow.open(map, markers[index].marker);
+        }
+
+        // ============================================
+        // 상세 정보 표시
+        // ============================================
+        function showDetail(item) {
+            const html = `
+                <h4>🍽️ ${item.place_name}</h4>
+                <p style="margin: 10px 0;"><strong>주소</strong><br>${item.road_address_name || item.address_name}</p>
+                <p style="margin: 10px 0;"><strong>전화</strong><br>${item.phone || '정보 없음'}</p>
+                <p style="margin: 10px 0;"><strong>카테고리</strong><br>${item.category_name}</p>
+                <p style="margin: 10px 0;"><strong>좌표</strong><br>위도: ${item.y}<br>경도: ${item.x}</p>
+                ${item.place_url ? `<p><a href="${item.place_url}" target="_blank" style="color: #FF914D; text-decoration: underline; font-weight: bold;">카카오맵에서 보기 →</a></p>` : ''}
+            `;
+            document.getElementById('detail-info').innerHTML = html;
+        }
+
+        // ============================================
+        // 유틸리티 함수들
+        // ============================================
+        function clearMarkers() {
+            markers.forEach(m => {
+                m.marker.setMap(null);
+                m.infowindow.close();
+            });
+            markers = [];
+        }
+
+        function closeAllInfoWindows() {
+            markers.forEach(m => m.infowindow.close());
+        }
+
+        function moveMapToFirstResult(item) {
+            const position = new kakao.maps.LatLng(item.y, item.x);
+            map.setCenter(position);
+            map.setLevel(5);
+        }
+
+        function showLoadingMessage(query) {
+            document.getElementById('result-list').innerHTML = `
+                <h4>🔍 검색 중...</h4>
+                <p>"${query}" 맛집을 찾고 있습니다...</p>
+            `;
+        }
+
+        function showNoResult(query) {
+            document.getElementById('result-list').innerHTML = `
+                <h4>😢 검색 결과 없음</h4>
+                <p>"${query}" 검색 결과가 없습니다.</p>
+                <p style="font-size: 13px; color: #999; margin-top: 10px;">다른 검색어를 시도해보세요!</p>
+            `;
+        }
+
+        function showErrorResult(message) {
+            document.getElementById('result-list').innerHTML = `
+                <h4>❌ 검색 오류</h4>
+                <p>${message}</p>
+            `;
+        }
+
+        function showErrorMessage(message) {
+            console.error('❌ 초기화 오류:', message);
+            document.getElementById('map').innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f5f5f5; flex-direction: column; padding: 20px;">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">⚠️ 지도 로드 실패</h3>
+                    <p style="color: #666; margin-bottom: 10px;">${message}</p>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; max-width: 500px;">
+                        <p style="font-size: 14px; margin: 5px 0;"><strong>확인 사항:</strong></p>
+                        <p style="font-size: 13px; margin: 5px 0;">1. application.properties에 카카오 JavaScript 키 설정</p>
+                        <p style="font-size: 13px; margin: 5px 0;">2. 카카오 개발자 센터에서 플랫폼 도메인 설정</p>
+                        <p style="font-size: 13px; margin: 5px 0;">3. 브라우저 콘솔에서 상세 에러 확인</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showApiKeyGuide() {
+            document.getElementById('result-list').innerHTML = `
+                <h4>⚙️ 카카오 API 키 설정 필요</h4>
+                <p style="margin-bottom: 15px;">맛집 검색을 사용하려면 카카오 API 키가 필요합니다.</p>
+                <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; text-align: left;">
+                    <p style="font-size: 14px; margin: 8px 0; font-weight: bold;">📋 설정 방법:</p>
+                    <p style="font-size: 13px; margin: 5px 0;">1. <a href="https://developers.kakao.com/" target="_blank" style="color: #0066cc;">developers.kakao.com</a> 접속</p>
+                    <p style="font-size: 13px; margin: 5px 0;">2. 내 애플리케이션 → 애플리케이션 추가</p>
+                    <p style="font-size: 13px; margin: 5px 0;">3. 플랫폼 설정 → Web 플랫폼 등록</p>
+                    <p style="font-size: 13px; margin: 5px 0;">4. REST API 키와 JavaScript 키 복사</p>
+                    <p style="font-size: 13px; margin: 5px 0;">5. application.properties에 추가</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
 </html>
