@@ -28,28 +28,53 @@ public class UserController {
      */
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> register(@RequestBody User user) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, Object> requestData) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // 입력 검증
-            if (user.getName() == null || user.getName().trim().isEmpty()) {
+            // 기본 정보 추출
+            String name = (String) requestData.get("name");
+            String email = (String) requestData.get("email");
+            String password = (String) requestData.get("password");
+            
+            // 추가 정보 추출
+            String gender = (String) requestData.get("gender");
+            String likeCategory = (String) requestData.get("likeCategory");
+            String oftenCategory = (String) requestData.get("oftenCategory");
+            String age = (String) requestData.get("age");
+            String region = (String) requestData.get("region");
+            String choiceFood = (String) requestData.get("choiceFood");
+            
+            // 기본 정보 검증
+            if (name == null || name.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "이름을 입력해주세요.");
                 return ResponseEntity.badRequest().body(response);
             }
             
-            if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            if (email == null || email.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "이메일을 입력해주세요.");
                 return ResponseEntity.badRequest().body(response);
             }
             
-            if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+            if (password == null || password.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "비밀번호를 입력해주세요.");
                 return ResponseEntity.badRequest().body(response);
             }
+            
+            // User 객체 생성 및 데이터 설정
+            User user = new User();
+            user.setName(name.trim());
+            user.setEmail(email.trim());
+            user.setPassword(password);
+            user.setGender(gender);
+            user.setLikeCategory(likeCategory);
+            user.setOftenCategory(oftenCategory);
+            user.setAge(age);
+            user.setRegion(region);
+            user.setChoiceFood(choiceFood);
             
             // 회원가입 처리
             User savedUser = userService.registerUser(user);

@@ -1,3 +1,7 @@
+/* ================================
+   LunchBot - 메인페이지 (클릭 완전 가능)
+   ================================ */
+
 /* 🍞 기본 배경 */
 body {
   font-family: 'Noto Sans KR', sans-serif;
@@ -25,6 +29,7 @@ body {
   border-radius: 50%;
   filter: blur(100px);
   z-index: 0;
+  pointer-events: none; /* ✅ 클릭 방해 제거 */
 }
 
 /* 🌫 향기 (연기) 효과 */
@@ -39,7 +44,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   animation: steam-rise 6s ease-in-out infinite;
-  pointer-events: none;
+  pointer-events: none; /* ✅ 클릭 방해 제거 */
   z-index: 1;
 }
 @keyframes steam-rise {
@@ -48,38 +53,46 @@ body {
   100% { transform: translate(-50%, -80px) scale(1.3); opacity: 0; }
 }
 
-/* 🍱 메인 박스 */
+/* 🌈 메인 컨테이너 */
 .main-container {
-  background: #fffaf4;
-  border-radius: 25px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-  padding: 70px 90px;
+  background: rgba(255, 250, 243, 0.85);
+  backdrop-filter: blur(14px);
+  border-radius: 2rem;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 3rem 2.5rem;
   text-align: center;
-  z-index: 3;
   position: relative;
-  max-width: 480px;
-  width: 100%;
+  z-index: 10; /* ✅ 항상 위에 있도록 */
 }
 
-/* 🍔 타이틀 */
+/* 🍔 메인 로고 */
 .main-icon {
-  width: 85px;
+  width: 160px;   /* ✅ 로고 크기 확대 */
   height: auto;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
+.main-icon:hover {
+  transform: scale(1.1);
+}
+
+/* 텍스트 */
 h1 {
   color: #ff7b2f;
-  font-size: 42px;
+  font-size: 54px;
   margin: 0;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 .subtitle {
-  font-size: 18px;
+  font-size: 22px;
   color: #333;
   margin-top: 5px;
 }
 .description {
-  font-size: 15px;
-  color: #666;
+  font-size: 18px;
+  color: #555;
   margin-top: 10px;
   margin-bottom: 40px;
 }
@@ -93,12 +106,12 @@ h1 {
 }
 .btn-login, .btn-signup {
   border: none;
-  padding: 12px 30px;
+  padding: 14px 36px;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s ease;
-  font-size: 15px;
+  font-size: 17px;
 }
 .btn-login {
   background-color: #FF914D;
@@ -116,7 +129,7 @@ h1 {
 /* 🍽 카테고리 */
 .category-section h3 {
   margin-bottom: 20px;
-  font-size: 20px;
+  font-size: 22px;
   color: #333;
 }
 .category-buttons {
@@ -129,8 +142,8 @@ h1 {
   background-color: #FFE8C2;
   border: none;
   border-radius: 20px;
-  padding: 10px 20px;
-  font-size: 15px;
+  padding: 12px 24px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -147,13 +160,14 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 60px;
-  z-index: 2;
+  z-index: 1;
+  pointer-events: none; /* ✅ 클릭 방해 제거 */
 }
 .side-left { left: 12%; }
 .side-right { right: 12%; }
 .side-left img, .side-right img {
-  width: 150px;
-  height: 150px;
+  width: 180px;
+  height: 180px;
   object-fit: contain;
   animation: float-up 4s ease-in-out infinite;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
@@ -167,12 +181,12 @@ h1 {
 /* 🧡 푸터 */
 footer {
   margin-top: 60px;
-  font-size: 14px;
+  font-size: 15px;
   color: #777;
 }
 
-/* 반응형 */
+/* 📱 반응형 */
 @media (max-width: 1024px) {
   .side-left, .side-right { display: none; }
-  .main-container { padding: 60px; }
+  .main-container { padding: 2rem; }
 }

@@ -43,9 +43,16 @@ java -jar build/libs/ChatFood-0.0.1-SNAPSHOT.jar
 
 - 애플리케이션: http://localhost:8080
 - H2 Console: http://localhost:8080/h2-console
-  - JDBC URL: `jdbc:h2:mem:chatfood`
+  - JDBC URL: `jdbc:h2:file:./data/chatfood`
   - Username: `sa`
   - Password: (비어있음)
+
+### 4. 데이터베이스
+
+개발 환경에서는 H2 파일 기반 데이터베이스를 사용합니다:
+- 데이터는 `./data/chatfood.mv.db` 파일에 저장됩니다
+- 서버를 재시작해도 데이터가 유지됩니다
+- H2 콘솔을 통해 데이터를 직접 조회/수정할 수 있습니다
 
 ## 프로젝트 구조
 

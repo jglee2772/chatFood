@@ -1,125 +1,207 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LunchBot 회원가입</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="/css/signpage.css">
+    <link rel="stylesheet" href="/css/signpage.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
 <div class="light-glow"></div>
-<div class="home-btn" onclick="window.location.href='/'">🏠</div>
+<div class="home-btn" onclick="window.location.href='index.html'">🏠</div>
 
-<div class="signup-container">
-<!--    <img th:src="@{/img/nobot.png}" alt="LunchBot 로고" class="signup-icon" />-->
-    <h1>LunchBot 회원가입</h1>
-    <p class="subtitle">AI가 나에게 딱 맞는 점심 메뉴를 추천해드려요 🍱</p>
+<!-- ✨ 회전 영역 -->
+<div class="signup-flip" id="flipRoot">
+    <!-- 앞면 -->
+    <div class="signup-container front">
+        <img src="/img/햄버거.png" alt="LunchBot 로고" class="signup-icon" />
+        <h1>LunchBot 회원가입</h1>
+        <p class="subtitle">AI가 나에게 딱 맞는 점심 메뉴를 추천해드려요 🍱</p>
 
-    <form id="signupForm" onsubmit="return checkPasswords()">
-        <div class="input-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required />
+        <form id="signupForm" onsubmit="return false">
+            <div class="input-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required />
+            </div>
+
+            <div class="input-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" placeholder="example@email.com" required />
+            </div>
+
+            <div class="input-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
+            </div>
+
+            <div class="input-group">
+                <label for="confirm-password">비밀번호 재확인</label>
+                <input type="password" id="confirm-password" name="confirm-password" placeholder="비밀번호를 다시 입력하세요" required />
+                <p class="error-text" id="error-text">⚠️ 비밀번호가 일치하지 않습니다</p>
+            </div>
+
+            <button type="button" class="signup-btn" id="nextBtn">다음 단계 ➡</button>
+        </form>
+
+        <div class="footer-link">
+            <a href="/login">로그인으로 돌아가기</a>
         </div>
+    </div>
 
-        <div class="input-group">
-            <label for="email">이메일</label>
-            <input type="email" id="email" name="email" placeholder="example@email.com" required />
-        </div>
+    <!-- 뒷면 -->
+    <div class="signup-container back">
+        <h1>추가 정보 입력</h1>
+        <p class="subtitle">더 정교한 추천을 위해 아래 정보를 입력해주세요 👇</p>
 
-        <div class="input-group">
-            <label for="password">비밀번호</label>
-            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
-        </div>
+        <form id="extraForm">
+            <div class="input-group">
+                <label>성별</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="gender" value="남성" required /> 남성</label>
+                    <label><input type="radio" name="gender" value="여성" /> 여성</label>
+                </div>
+            </div>
 
-        <div class="input-group">
-            <label for="confirm-password">비밀번호 재확인</label>
-            <input type="password" id="confirm-password" name="confirm-password" placeholder="비밀번호를 다시 입력하세요" required />
-            <p class="error-text" id="error-text">⚠️ 비밀번호가 일치하지 않습니다</p>
-        </div>
+            <div class="input-group">
+                <label>좋아하는 음식 카테고리 (복수 선택 가능)</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="favorite" value="한식" /> 한식</label>
+                    <label><input type="checkbox" name="favorite" value="중식" /> 중식</label>
+                    <label><input type="checkbox" name="favorite" value="양식" /> 양식</label>
+                    <label><input type="checkbox" name="favorite" value="일식" /> 일식</label>
+                    <label><input type="checkbox" name="favorite" value="분식" /> 분식</label>
+                </div>
+            </div>
 
-        <button type="submit" class="signup-btn">가입하기</button>
-    </form>
+            <div class="input-group">
+                <label>자주 먹는 음식</label>
+                <select name="often" required>
+                    <option value="">선택하세요</option>
+                    <option>한식</option><option>중식</option><option>양식</option><option>일식</option><option>분식</option>
+                </select>
+            </div>
 
-    <div class="footer-link">
-        <a th:href="@{/login}">로그인으로 돌아가기</a>
+            <div class="input-group">
+                <label>나이대</label>
+                <select name="age" required>
+                    <option value="">선택하세요</option>
+                    <option>10대</option><option>20대</option><option>30대</option><option>40대</option><option>50대 이상</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>지역</label>
+                <select name="region" required>
+                    <option value="">선택하세요</option>
+                    <option>서울</option><option>인천</option><option>경기</option><option>부산</option><option>기타</option>
+                </select>
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="back-btn" id="prevBtn">⬅ 이전</button>
+                <button type="submit" class="signup-btn">회원가입 완료</button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- 🍜 좌우 음식 아이콘 -->
+<!-- 음식 이모티콘 -->
 <div class="side-left">
-    <img src="/img/Kimchi.png" alt="김치찌개" />
-    <img src="/img/pizza.png" alt="피자" />
-    <img src="/img/라멘.png" alt="라멘" />
+    <img src="/img/김치찌게.png" alt="김치찌게" />
+    <img src="/img/피자.png" alt="피자" />
+    <img src="/img/타코.png" alt="타코" />
 </div>
-
 <div class="side-right">
     <img src="/img/도시락.png" alt="도시락" />
-    <img src="/img/타코.png" alt="타코" />
-    <img src="/img/pork.png" alt="오므라이스" />
+    <img src="/img/돈까스.png" alt="돈까스" />
+    <img src="/img/스테이크.png" alt="스테이크" />
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    // 비밀번호 확인
-    function checkPasswords() {
-        const pw = document.getElementById('password').value;
-        const confirmPw = document.getElementById('confirm-password').value;
-        const errorText = document.getElementById('error-text');
-        
-        if (pw !== confirmPw) {
-            errorText.style.display = 'block';
-            return false;
-        } else {
-            errorText.style.display = 'none';
-            
-            // 비밀번호가 일치하면 회원가입 처리
-            handleSignup();
-            return false; // 기본 form 제출 방지
+    document.addEventListener('DOMContentLoaded', function() {
+        const flipRoot = document.getElementById('flipRoot');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const errorEl = document.getElementById('error-text');
+
+        // 비밀번호 확인 함수
+        function checkPasswords() {
+            const pw = document.getElementById('password').value.trim();
+            const cpw = document.getElementById('confirm-password').value.trim();
+            const ok = pw.length > 0 && pw === cpw;
+            errorEl.style.display = ok ? 'none' : 'block';
+            return ok;
         }
-    }
 
-    // 회원가입 처리
-    function handleSignup() {
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
+        // 이벤트 리스너 등록
+        document.getElementById('confirm-password').addEventListener('input', checkPasswords);
 
-        // 로딩 상태 표시
-        const submitBtn = document.querySelector('.signup-btn');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = '가입 중...';
-        submitBtn.disabled = true;
+        // 다음 단계 버튼
+        nextBtn.addEventListener('click', function() {
+            if (!checkPasswords()) return;
+            flipRoot.classList.add('flipped');
+        });
 
-        // 회원가입 API 호출
-        axios.post('/api/users/register', {
-            name: name,
-            email: email,
-            password: password
-        })
-        .then(response => {
-            if (response.data.success) {
-                alert('🎉 ' + response.data.message + '\n로그인 페이지로 이동합니다.');
-                window.location.href = '/login';
-            } else {
-                alert('❌ ' + response.data.message);
+        // 이전 버튼
+        prevBtn.addEventListener('click', function() {
+            flipRoot.classList.remove('flipped');
+        });
+
+        // 회원가입 폼 제출
+        document.getElementById('extraForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const signupData = collectAllFormData();
+            const submitBtn = document.querySelector('#extraForm .signup-btn');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.textContent = '가입 중...';
+            submitBtn.disabled = true;
+            
+            axios.post('/api/users/register', signupData)
+                .then(response => {
+                    if (response.data.success) {
+                        alert('🎉 ' + response.data.message);
+                        window.location.href = '/login';
+                    } else {
+                        alert('❌ ' + response.data.message);
+                        resetButton();
+                    }
+                })
+                .catch(error => {
+                    const message = error.response?.data?.message || '회원가입 중 오류가 발생했습니다.';
+                    alert('❌ ' + message);
+                    resetButton();
+                });
+                
+            function resetButton() {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
             }
-        })
-        .catch(error => {
-            if (error.response && error.response.data && error.response.data.message) {
-                alert('❌ ' + error.response.data.message);
-            } else {
-                alert('❌ 회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
-            }
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
         });
-    }
+        
+        // 폼 데이터 수집
+        function collectAllFormData() {
+            const favoriteCheckboxes = document.querySelectorAll('input[name="favorite"]:checked');
+            const likeCategory = Array.from(favoriteCheckboxes).map(cb => cb.value).join(',');
+            const oftenCategory = document.querySelector('select[name="often"]')?.value || '';
+            
+            return {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                gender: document.querySelector('input[name="gender"]:checked')?.value || '',
+                likeCategory: likeCategory,
+                oftenCategory: oftenCategory,
+                age: document.querySelector('select[name="age"]')?.value || '',
+                region: document.querySelector('select[name="region"]')?.value || '',
+                choiceFood: oftenCategory
+            };
+        }
+    });
 </script>
 </body>
 </html>

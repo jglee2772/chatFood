@@ -34,6 +34,24 @@ public class User {
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Column(length = 10)
+    private String gender;
+
+    @Column(name = "like_category", length = 500)
+    private String likeCategory;
+
+    @Column(name = "often_category", length = 50)
+    private String oftenCategory;
+
+    @Column(length = 20)
+    private String age;
+
+    @Column(length = 50)
+    private String region;
+
+    @Column(name = "choice_food", length = 500)
+    private String choiceFood;
+
     @Column(name = "created_at")
     private java.time.LocalDateTime createdAt;
 

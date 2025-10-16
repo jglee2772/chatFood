@@ -5,31 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LunchBot - 오늘 뭐 먹을까?</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="/css/mainpage.css">
+  <link rel="stylesheet" href="/css/mainpage.css?v=20251016">
 </head>
 
 <body>
-<!-- 빛 효과 -->
+<!-- 🌞 중심 빛 효과 -->
 <div class="light-glow"></div>
 
-<!-- 냄새 효과 -->
+<!-- 🌫 향기(연기) 효과 -->
 <div class="steam"></div>
 <div class="steam"></div>
 <div class="steam"></div>
 
-<!-- 왼쪽 음식 -->
+<!-- 🍱 왼쪽 음식 -->
 <div class="side-left">
-  <img src="/img/kimchi.png" alt="김치찌개">
-  <img src="/img/pizza.png" alt="피자">
-  <img src="/img/pork.png" alt="돈까스">
+  <img src="/img/김치찌게.png" alt="김치찌개" />
+  <img src="/img/피자.png" alt="피자" />
+  <img src="/img/타코.png" alt="타코" />
 </div>
 
-<!-- 메인 콘텐츠 -->
+<!-- 🧡 메인 콘텐츠 -->
 <main class="main-container">
   <header>
-    <img src="/img/hamburger.png" alt="햄버거" class="main-icon">
+    <!-- ✅ 로고 클릭 가능 -->
+    <a href="/" class="logo-link">
+      <img src="/img/햄버거.png" alt="LunchBot 로고" class="main-icon">
+    </a>
     <h1>LunchBot</h1>
     <p class="subtitle">오늘 뭐 먹을까?</p>
     <p class="description">AI가 당신의 기분과 날씨에 맞는 점심 메뉴를 추천해드립니다 🍱</p>
@@ -59,30 +60,27 @@
   </footer>
 </main>
 
-<!-- 오른쪽 음식 -->
+<!-- 🍛 오른쪽 음식 -->
 <div class="side-right">
-  <img src="/img/steak.png" alt="스테이크">
-  <img src="/img/pancake.png" alt="팬케이크">
-  <img src="/img/타코.png" alt="타코">
+  <img src="/img/도시락.png" alt="도시락" />
+  <img src="/img/돈까스.png" alt="돈까스" />
+  <img src="/img/스테이크.png" alt="스테이크" />
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-  // DOM이 완전히 로드된 후 실행
   document.addEventListener('DOMContentLoaded', function() {
     const loginBtn = document.getElementById('btn-login');
     const signupBtn = document.getElementById('btn-signup');
-    
+
     if (loginBtn) {
       loginBtn.addEventListener('click', function() {
-        console.log('로그인 버튼 클릭됨');
         window.location.href = '/login';
       });
     }
-    
+
     if (signupBtn) {
       signupBtn.addEventListener('click', function() {
-        console.log('회원가입 버튼 클릭됨');
         window.location.href = '/signup';
       });
     }

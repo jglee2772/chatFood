@@ -1,5 +1,5 @@
 /* ================================
-   LunchBot - 완성형 로그인 페이지
+   LunchBot - 완성형 로그인 페이지 (🍜 이모티콘 확대 + 유리 느낌)
    ================================ */
 
 /* 🧡 기본 배경 */
@@ -27,6 +27,7 @@ body::before {
     url('https://www.transparenttextures.com/patterns/white-wall.png');
   opacity: 0.9;
   z-index: 0;
+  pointer-events: none;  /* ✅ 클릭 통과 */
 }
 
 /* 🌞 중심 빛 */
@@ -42,7 +43,9 @@ body::before {
   animation: glow-move 8s ease-in-out infinite alternate;
   filter: blur(80px);
   z-index: 0;
+  pointer-events: none;  /* ✅ 클릭 통과 */
 }
+
 
 @keyframes glow-move {
   0% { transform: translate(-48%, -52%) scale(1); opacity: 0.8; }
@@ -50,17 +53,24 @@ body::before {
   100% { transform: translate(-52%, -48%) scale(1); opacity: 0.75; }
 }
 
-/* 🍱 로그인 박스 */
-.login-container {
-  background-color: #fffaf3;
+.signup-container {
+  background: rgba(255, 250, 243, 0.82) !important;   /* ✅ 반투명 */
+  backdrop-filter: blur(14px) !important;             /* ✅ 유리창 효과 */
+  -webkit-backdrop-filter: blur(14px) !important;     /* ✅ Safari 지원 */
   border-radius: 2rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  width: 400px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  width: 100%;
+  height: 100%;
   padding: 3rem 2.5rem;
   text-align: center;
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateY(0deg);
+  backface-visibility: hidden;
+  transition: transform 0.7s cubic-bezier(.2,.7,.2,1);
   z-index: 2;
-  animation: fadeIn 0.6s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -68,17 +78,18 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 🤖 로고 */
+/* 🤖 로고 (투명도 조정 + 그림자 강화) */
 .robot-icon {
   width: 70px;
-  background-color: #fffaf3;
+  background: rgba(255, 250, 243, 0.8);   /* ✅ 반투명 배경 */
   border-radius: 50%;
   padding: 10px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
   position: absolute;
   top: -40px;
   left: 50%;
   transform: translateX(-50%);
+  backdrop-filter: blur(8px);
 }
 
 /* 텍스트 */
@@ -110,7 +121,7 @@ p.subtitle {
   padding: 1rem 1.2rem;
   border-radius: 1rem;
   border: 1.8px solid #f5c38a;
-  background-color: #fff;
+  background-color: rgba(255,255,255,0.9);
   font-size: 1rem;
   outline: none;
   transition: all 0.25s ease;
@@ -185,21 +196,21 @@ p.subtitle {
 .side-right { right: 9%; }
 
 .side-left img, .side-right img {
-  width: 140px;
-  height: 140px;
+  width: 180px;   /* ✅ 확대 유지 */
+  height: 180px;
   object-fit: contain;
   animation: float-up 5s ease-in-out infinite;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
   transition: transform 0.3s ease;
+}
+.side-left img:hover, .side-right img:hover {
+  transform: scale(1.12);
 }
 
 @keyframes float-up {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-15px); }
   100% { transform: translateY(0px); }
-}
-.side-left img:hover, .side-right img:hover {
-  transform: scale(1.12);
 }
 
 /* 🏠 홈 버튼 */
@@ -221,7 +232,13 @@ p.subtitle {
 
 /* 반응형 */
 @media (max-width: 1024px) {
-  .side-left, .side-right {
-    display: none;
+  .side-left, .side-right { display: none; }
+}
+
+/* 🌈 중간 화면(태블릿 정도)에서는 아이콘 살짝 축소 */
+@media (max-width: 1400px) and (min-width: 1025px) {
+  .side-left img, .side-right img {
+    width: 160px;
+    height: 160px;
   }
 }
