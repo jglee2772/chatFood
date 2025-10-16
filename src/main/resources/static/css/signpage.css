@@ -1,25 +1,6 @@
 /* ================================
    LunchBot 회원가입 CSS (정렬 완전 균형 + 유리 효과 + 좌우 아이콘 확대)
    ================================ */
-.signup-container {
-  background: rgba(255, 250, 243, 0.82) !important;   /* ✅ 반투명 */
-  backdrop-filter: blur(14px) !important;             /* ✅ 유리창 효과 */
-  -webkit-backdrop-filter: blur(14px) !important;     /* ✅ Safari 지원 */
-  border-radius: 2rem;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  border: 1px solid rgba(255,255,255,0.4);
-  width: 100%;
-  height: 100%;
-  padding: 3rem 2.5rem;
-  text-align: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotateY(0deg);
-  backface-visibility: hidden;
-  transition: transform 0.7s cubic-bezier(.2,.7,.2,1);
-  z-index: 2;
-}
 
 /* 🧡 기본 배경 */
 body {
@@ -68,23 +49,6 @@ body::before {
   100% { transform: translate(-52%,-48%) scale(1); opacity:0.75; }
 }
 
-/* 🏠 홈버튼 */
-.home-btn {
-  position: absolute;
-  top: 25px;
-  right: 35px;
-  font-size: 32px;
-  cursor: pointer;
-  color: #ff7b2f;
-  z-index: 3;
-  text-shadow: 1px 1px 3px rgba(255,120,0,0.3);
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-.home-btn:hover {
-  transform: scale(1.2);
-  color: #ff5400;
-}
-
 /* 회전 전체 래퍼 */
 .signup-flip {
   perspective: 1200px;
@@ -96,23 +60,50 @@ body::before {
   transition: transform 0.8s ease-in-out;
 }
 
-/* 카드 공통 스타일 (유리 느낌으로 변경됨) */
+/* 카드 공통 스타일 */
 .signup-container {
-  background-color: var(--card);
-  backdrop-filter: blur(14px);              /* ✅ 유리창 느낌 */
+  background: rgba(255, 250, 243, 0.82);
+  backdrop-filter: blur(14px);  /* ✅ 유리창 효과 */
+  -webkit-backdrop-filter: blur(14px);
   border-radius: 2rem;
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  border: 1px solid rgba(255,255,255,0.4); /* ✅ 반짝이는 테두리 */
+  border: 1px solid rgba(255,255,255,0.4);
   width: 100%;
   height: 100%;
   padding: 3rem 2.5rem;
   text-align: center;
-  position: absolute;
+  position: absolute;       /* ⬅ 기준: 카드 자체를 absolute로 중앙 배치 */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotateY(0deg);
   backface-visibility: hidden;
   transition: transform 0.7s cubic-bezier(.2,.7,.2,1);
+}
+
+/* 🏠 홈버튼: 카드 우상단(햄버거 자리) */
+.home-btn {
+  position: absolute;
+  top: 16px;         /* 카드 상단에서 16px */
+  right: 18px;       /* 카드 우측에서 18px */
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: #ff7b2f;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+  z-index: 5; /* 카드 내부 요소보다 앞 */
+}
+.home-btn:hover {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.92);
+  color: #ff5400;
 }
 
 /* 앞/뒤 구분 */
@@ -129,19 +120,8 @@ body::before {
   transform: translate(-50%, -50%) rotateY(0deg);
 }
 
-/* 로고 */
-.signup-icon {
-  width: 70px;
-  background: rgba(255,250,243,0.8);   /* ✅ 살짝 투명 */
-  border-radius: 50%;
-  padding: 10px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  backdrop-filter: blur(8px);
-}
+/* 로고(사용 안함) */
+/* .signup-icon { ... } */
 
 /* 타이틀 */
 h1 {
@@ -189,32 +169,10 @@ h1 {
   font-weight: 600;
 }
 
-/* ✅ 입력 필드 균형 유지 */
-.input-group input[type="text"],
-.input-group input[type="email"],
-.input-group input[type="password"] {
-  height: 48px;
-  padding: 0 1.1rem;
-  border: 1.8px solid var(--field);
-  border-radius: 1rem;
-  font-size: 1rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  line-height: normal;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  color: var(--ink);
-}
-.input-group input::placeholder {
-  color: #b8a99f;
-  opacity: 1;
-  font-weight: 400;
-}
-
 /* 버튼 */
 .signup-btn {
   background-color: var(--brand);
-  color: #000000; /* ✅ 빨강 → 검정으로 변경 */
+  color: #000000;
   border: none;
   border-radius: 9999px;
   width: 100%;

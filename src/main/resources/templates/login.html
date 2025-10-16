@@ -1,110 +1,93 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LunchBot 로그인</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/login.css" />
 </head>
 
 <body>
 
-<!-- ☀️ 움직이는 햇살 효과 -->
+<!-- ☀️ 중심 빛 효과 -->
 <div class="light-glow"></div>
 
-<!-- 🌫️ 부드러운 냄새 효과 -->
-<div class="steam"></div>
-<div class="steam"></div>
-<div class="steam"></div>
-
-<!-- 🏠 홈 이동 버튼 -->
-<div class="home-btn" onclick="window.location.href='/'">🏠</div>
-
-<!-- 🍣 왼쪽 음식 아이콘 -->
+<!-- 🍣 왼쪽 음식 이미지 -->
 <div class="side-left">
-    <img src="/img/김치찌게.png" alt="김치찌게" />
+    <img src="/img/김치찌게.png" alt="김치찌개" />
     <img src="/img/피자.png" alt="피자" />
     <img src="/img/타코.png" alt="타코" />
 </div>
 
 <!-- 🧡 로그인 박스 -->
 <div class="login-container">
+    <!-- 🏠 홈 버튼 (중앙 상단) -->
+    <div class="home-btn" onclick="window.location.href='/'">🏠 </div>
+
     <h1>LunchBot 로그인</h1>
     <p class="subtitle">AI가 당신의 점심 메뉴를 도와드릴게요 🍱</p>
 
+    <!-- 로그인 폼 -->
     <form id="loginForm" onsubmit="handleLogin(); return false;">
         <div class="input-group">
             <label for="email">이메일</label>
-            <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+            <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required />
         </div>
 
         <div class="input-group">
             <label for="password">비밀번호</label>
-            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
         </div>
 
         <button type="submit" class="login-btn">로그인</button>
     </form>
 
+    <!-- 회원가입 링크 -->
     <div class="footer-link">
         계정이 없으신가요? <a href="/signup">회원가입하기</a>
     </div>
 
-    <div class="bottom-illustration">
-        <img src="/img/도시락.png" alt="도시락">
-        <div class="bottom-text">오늘도 맛있는 점심시간 되세요!</div>
-    </div>
+
 </div>
 
-<!-- 🍕 오른쪽 음식 아이콘 -->
+<!-- 🍕 오른쪽 음식 이미지 -->
 <div class="side-right">
     <img src="/img/도시락.png" alt="도시락" />
     <img src="/img/돈까스.png" alt="돈까스" />
     <img src="/img/스테이크.png" alt="스테이크" />
 </div>
 
+<!-- ⚙️ 로그인 기능 -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    // 로그인 처리
     function handleLogin() {
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const loginBtn = document.querySelector('.login-btn');
+      const originalText = loginBtn.textContent;
 
-        // 로딩 상태 표시
-        const loginBtn = document.querySelector('.login-btn');
-        const originalText = loginBtn.textContent;
-        loginBtn.textContent = '로그인 중...';
-        loginBtn.disabled = true;
+      loginBtn.textContent = '로그인 중...';
+      loginBtn.disabled = true;
 
-        // 로그인 API 호출
-        axios.post('/api/users/login', {
-            email: email,
-            password: password
-        })
+      axios.post('/api/users/login', { email, password })
         .then(response => {
-            if (response.data.success) {
-                // 세션 스토리지에 사용자 정보 저장
-                sessionStorage.setItem('userId', response.data.userId);
-                sessionStorage.setItem('userName', response.data.name);
-                sessionStorage.setItem('userEmail', email);
-                
-                alert('🎉 ' + response.data.name + '님, 환영합니다!');
-                window.location.href = '/chatFood';
-            } else {
-                alert('❌ ' + response.data.message);
-                loginBtn.textContent = originalText;
-                loginBtn.disabled = false;
-            }
+          if (response.data.success) {
+            sessionStorage.setItem('userId', response.data.userId);
+            sessionStorage.setItem('userName', response.data.name);
+            sessionStorage.setItem('userEmail', email);
+            alert('🎉 ' + response.data.name + '님, 환영합니다!');
+            window.location.href = '/chatFood';
+          } else {
+            alert('❌ ' + response.data.message);
+          }
         })
-        .catch(error => {
-            if (error.response && error.response.data && error.response.data.message) {
-                alert('❌ ' + error.response.data.message);
-            } else {
-                alert('❌ 로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
-            }
-            loginBtn.textContent = originalText;
-            loginBtn.disabled = false;
+        .catch(() => {
+          alert('❌ 로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+        })
+        .finally(() => {
+          loginBtn.textContent = originalText;
+          loginBtn.disabled = false;
         });
     }
 </script>
