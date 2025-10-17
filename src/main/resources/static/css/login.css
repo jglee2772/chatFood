@@ -1,5 +1,5 @@
 /* ================================
-   🍱 LunchBot 로그인 페이지 (세로 20% 확장형)
+   🍱 LunchBot 로그인 페이지 (폭 일치 + 균형 완성형)
    ================================ */
 
 /* 🧡 기본 배경 */
@@ -60,7 +60,7 @@ body::before {
     inset 0 0 10px rgba(255, 255, 255, 0.6);
   width: 520px;
   min-height: 640px;
-  padding: 3.5rem 3rem 3rem 3rem;
+  padding: 4.5rem 3rem 3rem 3rem;
   text-align: center;
   z-index: 10;
   animation: fadeIn 0.8s ease forwards;
@@ -70,36 +70,36 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 🏠 홈 버튼 (크게 + 강조 버전) */
+/* 🏠 홈 버튼 (정중앙 상단) */
 .home-btn {
   position: absolute;
-  top: -55px; /* 살짝 위로 올림 */
+  top: 0;
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.7);
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 50%;
-  width: 90px;   /* ✅ 기존 75px → 90px */
-  height: 90px;  /* ✅ 기존 75px → 90px */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;  /* ✅ 기존 40px → 48px */
+  font-size: 42px;
   color: #ff7b2f;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   cursor: pointer;
   transition: transform 0.3s ease, color 0.3s ease, background 0.3s ease;
-  z-index: 15;
+  z-index: 20;
 }
 .home-btn:hover {
-  transform: translateX(-50%) scale(1.15);
+  transform: translate(-50%, -50%) scale(1.15);
+  background: #fff;
   color: #ff5400;
-  background: rgba(255, 255, 255, 0.9);
 }
 
 /* 제목 */
 h1 {
-  margin-top: 2.2rem;
+  margin-top: 2.8rem;
   font-size: 1.9rem;
   font-weight: 900;
   color: #3b2e25;
@@ -109,61 +109,79 @@ h1 {
 .subtitle {
   color: #7c6754;
   font-size: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
-/* 📏 입력 그룹 (가로는 90%, 세로 20% 넓힘) */
+/* 📏 폼 전체 균형 조정 */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ✅ 입력 그룹: 정렬 완전 고정 */
 .input-group {
-  width: 90%;
-  margin: 0 auto 1.3rem auto;
+  width: 88%;                   /* 카드 폭과 시각적으로 딱 맞춤 */
+  margin: 0 auto 1.6rem auto;
   text-align: left;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
 .input-group label {
-  display: block;
+  width: 100%;
   font-weight: 700;
-  font-size: 0.9rem;
-  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.45rem;
+  color: #4b3b2f;
 }
+
+/* ✅ 입력창: 완벽한 폭 일치 */
 .input-group input {
   width: 100%;
-  padding: 1.05rem 1.1rem;  /* ✅ 위아래 20% 확장 */
-  border-radius: 1rem;
-  border: 1.8px solid #f5c38a;
-  background-color: rgba(255,255,255,0.95);
-  font-size: 1rem;
+  height: 58px;                 /* 고정 높이 */
+  padding: 0 1.2rem;
+  border-radius: 14px;
+  border: 2px solid #f5c38a;
+  background: rgba(255,255,255,0.98);
+  font-size: 1.05rem;
+  font-weight: 500;
   outline: none;
+  box-sizing: border-box;       /* padding 포함 width 계산 */
   transition: all 0.25s ease;
 }
 .input-group input:focus {
   border-color: #fb923c;
-  box-shadow: 0 0 0 3px rgba(251,146,60,0.15);
+  box-shadow: 0 0 0 3px rgba(251,146,60,0.2);
 }
 
-/* 로그인 버튼 (높이 확장) */
+/* ✅ 로그인 버튼: 입력창과 완전 폭 일치 */
 .login-btn {
-  background-color: #fb923c;
-  color: white;
+  width: 88%;
+  height: 60px;
+  margin: 1.8rem auto 0 auto;
   border: none;
   border-radius: 9999px;
-  width: 90%;
-  padding: 1.15rem;  /* ✅ 20% 더 넓힘 */
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-top: 1rem;
+  background-color: #fb923c;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, background-color 0.3s ease;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+  transition: transform 0.25s ease, background-color 0.3s ease;
 }
 .login-btn:hover {
   background-color: #f97316;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 /* 회원가입 링크 */
 .footer-link {
-  margin-top: 1.3rem;
-  font-size: 0.9rem;
+  margin-top: 1.8rem;
+  font-size: 0.95rem;
 }
 .footer-link a {
   color: #fb923c;
@@ -173,8 +191,6 @@ h1 {
 .footer-link a:hover {
   text-decoration: underline;
 }
-
-
 
 /* 🍜 양쪽 음식 이미지 */
 .side-left, .side-right {
@@ -210,4 +226,11 @@ h1 {
 /* 반응형 */
 @media (max-width: 1024px) {
   .side-left, .side-right { display: none; }
+  .login-container {
+    width: 90%;
+    padding: 3rem 2rem;
+  }
+  .input-group, .login-btn {
+    width: 92%;
+  }
 }
