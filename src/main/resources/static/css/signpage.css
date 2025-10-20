@@ -1,3 +1,12 @@
+:root {
+  --brand: #fb923c;
+  --brand-dark: #f97316;
+  --card: #fffaf3;
+  --ink: #3b2e25;
+  --ink-sub: #7c6754;
+  --field: #f5c38a;
+}
+
 /* ================================
    LunchBot 회원가입 CSS (정렬 완전 균형 + 유리 효과 + 좌우 아이콘 확대)
    ================================ */
@@ -286,4 +295,19 @@ h1 {
     width: 160px;
     height: 160px;
   }
+}
+
+/* ================================
+   ✅ '이전' 버튼 색상 → 회원가입 완료 버튼과 동일하게 통일
+   ================================ */
+.back-btn {
+  background-color: var(--brand) !important;
+  color: #000 !important;
+  border: none !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.back-btn:hover {
+  background-color: var(--brand-dark) !important;
+  transform: translateY(-2px);
 }
