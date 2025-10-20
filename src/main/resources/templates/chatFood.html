@@ -170,8 +170,14 @@
             `;
 
             card.onclick = () => {
+                // 사용자 메시지 추가
                 addMessageToChat('user', `${foodName} 좋아요!`);
-                sendMessage(`${foodName} 주변 맛집 알려줘!`);
+                
+                // 잠시 후 foodMap.html로 리다이렉트 (사용자가 메시지를 볼 수 있도록)
+                setTimeout(() => {
+                    const encodedFoodName = encodeURIComponent(foodName);
+                    window.location.href = `/foodMap?search=${encodedFoodName}`;
+                }, 1000);
             };
 
             recommendationArea.appendChild(card);

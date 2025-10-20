@@ -409,6 +409,14 @@
         }
 
         // ============================================
+        // URL 파라미터에서 검색어 추출
+        // ============================================
+        function getSearchParamFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('search');
+        }
+
+        // ============================================
         // 페이지 로드 후 실행
         // ============================================
         window.onload = async () => {
@@ -423,6 +431,16 @@
                 
                 // 3. 이벤트 리스너 설정
                 setupEventListeners();
+                
+                // 4. URL에서 검색어가 있으면 자동 검색 실행
+                const searchParam = getSearchParamFromURL();
+                if (searchParam) {
+                    console.log('🔍 자동 검색 실행:', searchParam);
+                    // 검색 입력창에 값 설정
+                    document.getElementById('search-input').value = searchParam;
+                    // 자동 검색 실행
+                    searchPlaces(searchParam);
+                }
                 
             } catch (error) {
                 console.error('❌ 초기화 오류:', error);
