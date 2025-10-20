@@ -6,42 +6,214 @@
     <title>LunchBot - 오늘 뭐 먹을까?</title>
     <link rel="stylesheet" href="/css/chatFood.css" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- 추천 카드 UI를 위한 스타일 -->
+    <style>
+        /* 추천 카드들이 담길 전체 영역 */
+        #recommendation-area {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            gap: 12px; /* 카드 사이 간격 */
+            border-top: 1px solid #f0f0f0;
+            background-color: #f9f9f9;
+        }
+
+        /* 개별 추천 카드 스타일 */
+        .recommendation-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* D12px -> 12px 오타 수정 */
+            padding: 15px;
+            text-align: center;
+            width: 30%;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #eee;
+        }
+
+        /* 카드에 마우스를 올렸을 때 효과 */
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .food-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .food-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .food-price {
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
 </head>
 
 <body>
 <div class="chat-wrapper">
-
-    <!-- 로고 영역 -->
     <div class="logo-section">
         <div class="logo-icon">🤖</div>
         <h1>LunchBot <span>오늘 뭐 먹을까?</span></h1>
     </div>
 
-    <!-- 메인 대화창 -->
     <div class="chat-container">
-
-        <!-- 왼쪽 (챗봇 대화) -->
         <div class="chat-left">
-            <div class="bot-message">안녕하세요!<br>오늘 점심 메뉴 고민되시죠?</div>
-            <div class="user-message">네! 매운 거 먹고 싶어요.</div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- 메시지는 동적으로 채워집니다 -->
+            </div>
 
-            <!-- 입력창 -->
+            <!-- 추천 카드가 표시될 새로운 영역 -->
+            <div id="recommendation-area"></div>
+
             <div class="input-area">
-                <input type="text" placeholder="메시지를 입력하세요..." />
-                <button class="send-btn">전송</button>
+                <input type="text" id="message-input" placeholder="메시지를 입력하세요..." />
+                <button class="send-btn" id="send-btn">전송</button>
             </div>
         </div>
 
-        <!-- 오른쪽 (최근 대화 기록) -->
         <div class="chat-right">
             <h3>최근 대화 기록</h3>
             <ul class="history-list">
-                <li><span>10/07</span> 김치찌개</li>
-                <li><span>10/06</span> 초밥</li>
-                <li><span>10/05</span> 돈까스</li>
+                <!-- 이 부분은 예시입니다 -->
+                <li><span>10/20</span> 제육볶음</li>
+                <li><span>10/19</span> 초밥</li>
             </ul>
         </div>
     </div>
 </div>
+
+<script>
+    const chatMessages = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const recommendationArea = document.getElementById('recommendation-area');
+
+    const API_URL = '/chat';
+    const sessionId = `session_${Date.now()}`;
+
+    // 페이지가 로드되면, 서버에 첫 인사를 요청합니다.
+    window.onload = async () => {
+        showTypingIndicator();
+        await sendMessage("__INIT__", true);
+        hideTypingIndicator();
+    };
+
+    // 메시지를 서버로 보내고 응답을 처리하는 메인 함수
+    const sendMessage = async (messageText, isInitial = false) => {
+        const message = isInitial ? messageText : messageInput.value.trim();
+        if (message === '' && !isInitial) return;
+
+        if (!isInitial) {
+            addMessageToChat('user', message);
+            messageInput.value = '';
+        }
+
+        recommendationArea.innerHTML = '';
+        showTypingIndicator();
+
+        try {
+            const payload = { message: message, sessionId: sessionId };
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) throw new Error('서버 응답 오류');
+
+            const data = await response.json();
+            hideTypingIndicator();
+
+            addMessageToChat('bot', data.reply);
+
+            if (data.recommendations && data.recommendations.length > 0) {
+                displayRecommendationCards(data.recommendations);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            hideTypingIndicator();
+            addMessageToChat('bot', '죄송해요, 지금 서버에 문제가 생겨서 답변을 드릴 수 없어요. 😥');
+        }
+    };
+
+    // 추천 카드 UI를 동적으로 생성하는 함수
+    const displayRecommendationCards = (recommendations) => {
+        recommendations.forEach(rec => {
+            // ✨ 1. rec.foodName 대신 rec.food_name을 사용하도록 수정합니다.
+            const foodName = rec.food_name;
+            if (!foodName) return; // food_name이 없는 데이터는 건너뜁니다.
+
+            const card = document.createElement('div');
+            card.className = 'recommendation-card';
+
+            let icon = '🍴';
+            if(foodName.includes('국밥') || foodName.includes('비빔밥') || foodName.includes('제육')) icon = '🍚';
+            if(foodName.includes('짜장') || foodName.includes('짬뽕') || foodName.includes('탕수육')) icon = '🍜';
+            if(foodName.includes('초밥') || foodName.includes('라멘') || foodName.includes('돈까스')) icon = '🍣';
+            if(foodName.includes('파스타') || foodName.includes('피자') || foodName.includes('스테이크')) icon = '🍕';
+
+            card.innerHTML = `
+                <div class="food-icon">${icon}</div>
+                <div class="food-name">${foodName}</div>
+
+                <!-- ✨ 2. rec.priceMin 대신 rec.price_min을 사용하도록 수정합니다. -->
+                <div class="food-price">약 ${rec.price_min.toLocaleString()}원 ~</div>
+            `;
+
+            card.onclick = () => {
+                addMessageToChat('user', `${foodName} 좋아요!`);
+                sendMessage(`${foodName} 주변 맛집 알려줘!`);
+            };
+
+            recommendationArea.appendChild(card);
+        });
+    };
+
+    // 대화 메시지를 채팅창에 추가하는 함수
+    const addMessageToChat = (sender, text) => {
+        if (text === '__INIT__') return;
+        const messageElement = document.createElement('div');
+        messageElement.className = sender === 'user' ? 'user-message' : 'bot-message';
+        messageElement.innerHTML = text.replace(/\n/g, '<br>');
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    // '입력 중...' 애니메이션 관련 함수들 (기존과 동일)
+    const showTypingIndicator = () => {
+        const typingElement = document.createElement('div');
+        typingElement.className = 'bot-message bot-typing';
+        typingElement.id = 'typing-indicator';
+        typingElement.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        chatMessages.appendChild(typingElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    const hideTypingIndicator = () => {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if(typingIndicator) {
+            chatMessages.removeChild(typingIndicator);
+        }
+    };
+
+    // 이벤트 리스너 (기존과 동일)
+    sendBtn.addEventListener('click', () => sendMessage());
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+</script>
 </body>
 </html>
+
