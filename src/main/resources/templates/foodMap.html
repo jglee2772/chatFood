@@ -1,344 +1,432 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LunchBot 맛집 지도</title>
-
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          font-family: 'Noto Sans KR', sans-serif;
-          background: linear-gradient(135deg, #fff3e1 0%, #ffe0b2 100%);
-          color: #3b2e25;
-        }
-
-        /* ✅ 헤더 */
-        header {
-          background: #ffffff;
-          color: #333;
-          text-align: center;
-          padding: 25px 0 35px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        header h1 {
-          font-size: 28px;
-          font-weight: 800;
-          margin-bottom: 6px;
-        }
-
-        header p {
-          opacity: 0.8;
-          font-size: 15px;
-          margin-bottom: 20px;
-        }
-
-        /* 🔍 검색창 */
-        .search-box {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .search-box input {
-          padding: 10px 15px;
-          border: 1px solid #ddd;
-          border-radius: 25px;
-          width: 250px;
-          font-size: 14px;
-          outline: none;
-          transition: box-shadow 0.2s ease;
-        }
-
-        .search-box input:focus {
-          box-shadow: 0 0 8px rgba(251,146,60,0.3);
-        }
-
-        .search-box button {
-          padding: 10px 20px;
-          background: #fb923c;
-          color: white;
-          border: none;
-          border-radius: 25px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.3s ease;
-        }
-
-        .search-box button:hover {
-          background: #ff7a2e;
-        }
-
-        /* 메인 */
-        .main-wrapper {
-          max-width: 1300px;
-          margin: 25px auto;
-          padding: 0 20px;
-          display: grid;
-          grid-template-columns: 2fr 1.2fr;
-          gap: 25px;
-        }
-
-        .upper-content {
-          position: relative;
-          height: 600px;
-          border-radius: 18px;
-          overflow: hidden;
-          background: linear-gradient(135deg, #fff7e6 0%, #ffe3b0 100%);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-        }
-
-        #map {
-          width: 100%;
-          height: 100%;
-          border-radius: 18px;
-          filter: saturate(1.1) brightness(1.05);
-          transition: all 0.3s ease;
-        }
-
-        .upper-content:hover #map {
-          filter: saturate(1.25) brightness(1.1);
-        }
-
-        .map-title {
-          position: absolute;
-          top: 15px;
-          left: 20px;
-          background: rgba(255, 255, 255, 0.8);
-          color: #333;
-          padding: 10px 18px;
-          border-radius: 25px;
-          font-weight: 700;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-          backdrop-filter: blur(6px);
-          z-index: 10;
-        }
-
-        /* 추천 맛집 */
-        #restaurant-info {
-          background: white;
-          border-radius: 15px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-          padding: 25px;
-          height: 600px;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-        }
-
-        #restaurant-info h3 {
-          font-size: 22px;
-          font-weight: 800;
-          color: #3b2e25;
-          border-bottom: 3px solid #fb923c;
-          margin-bottom: 15px;
-          padding-bottom: 5px;
-          text-align: center;
-        }
-
-        .restaurant-card {
-          background: #fffaf3;
-          border: 2px solid transparent;
-          border-radius: 10px;
-          padding: 15px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .restaurant-card:hover {
-          border-color: #fb923c;
-          transform: translateY(-3px);
-          box-shadow: 0 4px 10px rgba(251,146,60,0.2);
-        }
-
-        #restaurant-detail {
-          margin-top: 20px;
-          background: #fff8ed;
-          border-radius: 10px;
-          padding: 18px;
-          border-left: 4px solid #fb923c;
-          display: none;
-          animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-          .main-wrapper { grid-template-columns: 1fr; }
-          #restaurant-info { height: auto; }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맛집 지도 - LunchBot</title>
+    <link rel="stylesheet" href="/css/foodMap.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
-<header>
-    <h1>🍱 LunchBot 맛집 지도</h1>
-    <p>AI가 내 주변 맛집을 찾아드릴게요</p>
+    <!-- 🏠 헤더 영역 -->
+    <header>
+        <h1>🍱 LunchBot 맛집 지도</h1>
+        <p>AI가 내 주변 맛집을 찾아드릴게요</p>
+        
+        <!-- 🔍 검색창 -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="예: 초밥, 돈까스, 파스타">
+            <button id="search-btn">검색</button>
+        </div>
+    </header>
 
-    <!-- 🔍 검색창 -->
-    <div class="search-box">
-        <input type="text" id="search-input" placeholder="예: 초밥, 돈까스, 파스타">
-        <button id="search-btn">검색</button>
+    <!-- 📱 메인 콘텐츠 -->
+    <div class="main-wrapper">
+        <!-- 🗺️ 지도 영역 -->
+        <div class="upper-content">
+            <div id="map"></div>
+            <div class="map-title">📍 내 주변 맛집 탐색 중...</div>
+        </div>
+
+        <!-- 📋 맛집 세부정보 영역 -->
+        <div class="detail-section">
+            <h3>🍽️ 맛집 상세정보</h3>
+            <div id="restaurant-detail-info">
+                <div id="restaurant-detail-content">
+                    <p class="no-selection">지도에서 음식점을 클릭하면 상세정보가 표시됩니다</p>
+                </div>
+            </div>
+        </div>
     </div>
-</header>
 
-<div class="main-wrapper">
-    <div class="upper-content">
-        <div id="map"></div>
-        <div class="map-title">📍 내 주변 맛집 탐색 중...</div>
+    <!-- 🏆 추천 맛집 TOP 3 (하단 가로 배치) -->
+    <div class="recommended-section">
+        <h3>🏆 AI 추천 맛집 TOP 3</h3>
+        <div id="restaurant-list" class="restaurant-list-horizontal"></div>
     </div>
 
-    <div id="restaurant-info">
-        <h3>AI 추천 맛집 TOP 3</h3>
-        <div id="restaurant-list"></div>
-        <div id="restaurant-detail"></div>
-    </div>
-</div>
+    <!-- 📚 카카오 지도 API -->
+    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c7620c46bc5355020067ad99447e75f3&libraries=services"></script>
+    
+    <!-- 🚀 JavaScript 코드 -->
+    <script>
+        // ============================================
+        // 전역 변수
+        // ============================================
+        let map;
+        let userLocation = null;
+        let markers = [];
+        let infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
 
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c7620c46bc5355020067ad99447e75f3&libraries=services"></script>
-<script>
-    let map, userLocation = null, markers = [], infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+        // ============================================
+        // 사용자 현재 위치 가져오기
+        // ============================================
+        async function getUserLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    console.warn('⚠️ Geolocation을 지원하지 않는 브라우저입니다.');
+                    userLocation = { lat: 37.5665, lng: 126.9780 }; // 서울 시청
+                    resolve();
+                    return;
+                }
 
-    async function getUserLocation() {
-      return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-          userLocation = { lat: 37.5665, lng: 126.9780 };
-          resolve();
-          return;
+                console.log('📍 현재 위치를 가져오는 중...');
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        console.log('✅ 현재 위치:', userLocation);
+                        resolve();
+                    },
+                    (error) => {
+                        console.warn('⚠️ 위치 권한 거부 또는 오류:', error.message);
+                        userLocation = { lat: 37.5665, lng: 126.9780 }; // 서울 시청
+                        resolve();
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
         }
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            resolve();
-          },
-          () => {
-            userLocation = { lat: 37.5665, lng: 126.9780 };
-            resolve();
-          }
-        );
-      });
-    }
 
-    function initMap() {
-      const center = new kakao.maps.LatLng(userLocation.lat, userLocation.lng);
-      const container = document.getElementById("map");
-      const options = { center, level: 5 };
-      map = new kakao.maps.Map(container, options);
-
-      const marker = new kakao.maps.Marker({ position: center, map });
-      const info = new kakao.maps.InfoWindow({
-        content: '<div style="padding:5px;font-size:12px;">📍 내 위치</div>',
-      });
-      info.open(map, marker);
-
-      searchPlaces("맛집");
-    }
-
-    function searchPlaces(keyword) {
-      clearMarkers();
-      const ps = new kakao.maps.services.Places();
-      const opt = {
-        location: new kakao.maps.LatLng(userLocation.lat, userLocation.lng),
-        radius: 2000,
-        sort: kakao.maps.services.SortBy.DISTANCE,
-      };
-      ps.keywordSearch(keyword, placesSearchCB, opt);
-    }
-
-    function placesSearchCB(data, status) {
-      if (status !== kakao.maps.services.Status.OK) {
-        alert("검색 결과가 없습니다.");
-        return;
-      }
-
-      const bounds = new kakao.maps.LatLngBounds();
-      data.forEach((d) => bounds.extend(new kakao.maps.LatLng(d.y, d.x)));
-      map.setBounds(bounds);
-
-      displayTop3Restaurants(data);
-      data.forEach(displayMarker);
-    }
-
-    function displayMarker(place) {
-      const marker = new kakao.maps.Marker({
-        map,
-        position: new kakao.maps.LatLng(place.y, place.x),
-      });
-      markers.push(marker);
-      kakao.maps.event.addListener(marker, "click", () => {
-        infowindow.setContent(
-          `<div style="padding:8px;font-size:12px;"><strong>${place.place_name}</strong><br>${place.road_address_name || place.address_name}</div>`
-        );
-        infowindow.open(map, marker);
-      });
-    }
-
-    function clearMarkers() {
-      markers.forEach((m) => m.setMap(null));
-      markers = [];
-      document.getElementById("restaurant-list").innerHTML = "";
-      document.getElementById("restaurant-detail").style.display = "none";
-    }
-
-    function displayTop3Restaurants(places) {
-      const list = document.getElementById("restaurant-list");
-      list.innerHTML = "";
-
-      const top3 = places.slice(0, 3);
-      top3.forEach((p, i) => {
-        const card = document.createElement("div");
-        card.className = "restaurant-card";
-        card.innerHTML = `
-          <h4>${i + 1}위. ${p.place_name}</h4>
-          <p>${p.road_address_name || p.address_name}</p>
-          <p class="rating">⭐ ${(4 + Math.random()).toFixed(1)}</p>
-        `;
-        card.addEventListener("click", () => showDetail(p));
-        list.appendChild(card);
-      });
-    }
-
-    function showDetail(place) {
-      const detail = document.getElementById("restaurant-detail");
-      detail.style.display = "block";
-      detail.innerHTML = `
-        <h4>${place.place_name}</h4>
-        <p>📍 주소: ${place.road_address_name || place.address_name}</p>
-        <p>📞 전화번호: ${place.phone || "없음"}</p>
-        <p>🏷 카테고리: ${place.category_name || "음식점"}</p>
-        <p>🌐 거리: 약 ${(Math.random() * 1.5 + 0.3).toFixed(2)} km</p>
-        <p>⭐ 평점: ${(4 + Math.random()).toFixed(1)}</p>
-      `;
-    }
-
-    // 🔍 검색 버튼 이벤트 연결
-    window.onload = async () => {
-      await getUserLocation();
-      initMap();
-
-      const searchBtn = document.getElementById("search-btn");
-      const searchInput = document.getElementById("search-input");
-
-      searchBtn.addEventListener("click", () => {
-        const keyword = searchInput.value.trim();
-        if (keyword) searchPlaces(keyword);
-        else alert("검색어를 입력해주세요!");
-      });
-
-      searchInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          const keyword = searchInput.value.trim();
-          if (keyword) searchPlaces(keyword);
-          else alert("검색어를 입력해주세요!");
+        // ============================================
+        // 지도 초기화
+        // ============================================
+        function initMap() {
+            console.log('🗺️ 지도 초기화 시작');
+            
+            try {
+                const center = new kakao.maps.LatLng(userLocation.lat, userLocation.lng);
+                const container = document.getElementById("map");
+                const options = { 
+                    center, 
+                    level: 5 
+                };
+                
+                map = new kakao.maps.Map(container, options);
+                
+                // 내 위치 마커 추가
+                const marker = new kakao.maps.Marker({ 
+                    position: center, 
+                    map 
+                });
+                
+                const info = new kakao.maps.InfoWindow({
+                    content: '<div style="padding:5px;font-size:12px;">📍 내 위치</div>'
+                });
+                info.open(map, marker);
+                
+                console.log('✅ 지도 초기화 완료');
+                
+                // 기본 맛집 검색
+                searchPlaces("맛집");
+                
+            } catch (error) {
+                console.error('❌ 지도 초기화 실패:', error);
+                alert('지도 초기화 실패: ' + error.message);
+            }
         }
-      });
-    };
-</script>
+
+        // ============================================
+        // 장소 검색
+        // ============================================
+        function searchPlaces(keyword) {
+            console.log('🔍 검색 시작:', keyword);
+            
+            if (!userLocation) {
+                alert('📍 위치 정보가 없습니다. 위치 권한을 허용해주세요.');
+                return;
+            }
+            
+            // 기존 마커들 제거
+            clearMarkers();
+            
+            // 장소 검색 서비스 객체 생성
+            const ps = new kakao.maps.services.Places();
+            
+            // 검색 옵션 설정 (내 위치 기준 2km 반경)
+            const options = {
+                location: new kakao.maps.LatLng(userLocation.lat, userLocation.lng),
+                radius: 2000, // 2km 반경
+                sort: kakao.maps.services.SortBy.DISTANCE // 거리순 정렬
+            };
+            
+            // 키워드로 장소 검색
+            ps.keywordSearch(keyword, placesSearchCB, options);
+        }
+
+        // ============================================
+        // 검색 결과 처리
+        // ============================================
+        function placesSearchCB(data, status) {
+            if (status !== kakao.maps.services.Status.OK) {
+                console.warn('⚠️ 검색 실패:', status);
+                alert('검색 결과가 없습니다. 다른 키워드로 시도해보세요.');
+                return;
+            }
+
+            console.log('✅ 검색 결과:', data.length + '개');
+            
+            // 검색된 장소 위치를 기준으로 지도 범위 재설정
+            const bounds = new kakao.maps.LatLngBounds();
+            data.forEach((place) => {
+                bounds.extend(new kakao.maps.LatLng(place.y, place.x));
+            });
+            map.setBounds(bounds);
+            
+            // TOP 3 맛집 표시
+            displayTop3Restaurants(data);
+            
+            // 마커 표시
+            data.forEach(displayMarker);
+        }
+
+        // ============================================
+        // 마커 표시
+        // ============================================
+        function displayMarker(place) {
+            const marker = new kakao.maps.Marker({
+                map,
+                position: new kakao.maps.LatLng(place.y, place.x)
+            });
+            
+            markers.push(marker);
+            
+            // 마커 클릭 이벤트
+            kakao.maps.event.addListener(marker, "click", () => {
+                // 인포윈도우 표시
+                const content = `
+                    <div style="padding:8px;font-size:12px;line-height:1.4;">
+                        <strong>${place.place_name}</strong><br>
+                        <span style="color:#666;">${place.road_address_name || place.address_name}</span>
+                    </div>
+                `;
+                infowindow.setContent(content);
+                infowindow.open(map, marker);
+                
+                // 오른쪽 세부정보 영역에 상세 정보 표시
+                showDetail(place);
+            });
+        }
+
+        // ============================================
+        // 기존 마커들 제거
+        // ============================================
+        function clearMarkers() {
+            markers.forEach((marker) => marker.setMap(null));
+            markers = [];
+            document.getElementById("restaurant-list").innerHTML = "";
+            resetDetailInfo();
+        }
+
+        // ============================================
+        // TOP 3 맛집 표시
+        // ============================================
+        function displayTop3Restaurants(places) {
+            const list = document.getElementById("restaurant-list");
+            list.innerHTML = "";
+
+            const top3 = places.slice(0, 3);
+            
+            top3.forEach((place, index) => {
+                const card = document.createElement("div");
+                card.className = "restaurant-card";
+                card.innerHTML = `
+                    <h4>${index + 1}위. ${place.place_name}</h4>
+                    <p>${place.road_address_name || place.address_name}</p>
+                    <p class="rating">⭐ ${(4 + Math.random()).toFixed(1)}</p>
+                `;
+                
+                // 카드 클릭 이벤트
+                card.addEventListener("click", () => showDetail(place));
+                list.appendChild(card);
+            });
+        }
+
+        // ============================================
+        // 맛집 상세 정보 표시 (오른쪽 영역)
+        // ============================================
+        function showDetail(place) {
+            const detailContent = document.getElementById("restaurant-detail-content");
+            const distance = calculateDistance(userLocation.lat, userLocation.lng, place.y, place.x);
+            const distanceText = distance < 1000 ? Math.round(distance) + 'm' : (distance/1000).toFixed(1) + 'km';
+            const rating = (4 + Math.random()).toFixed(1);
+            const stars = '⭐'.repeat(Math.floor(rating));
+            
+            // 영업시간 랜덤 생성 (현실적인 시간대)
+            const openTime = Math.floor(Math.random() * 3) + 7; // 7-9시
+            const closeTime = Math.floor(Math.random() * 4) + 21; // 21-24시
+            const businessHours = `${openTime.toString().padStart(2, '0')}:00 - ${closeTime.toString().padStart(2, '0')}:00`;
+            
+            // 가격대 랜덤 생성
+            const priceRanges = ['₩₩ (1만원 이하)', '₩₩₩ (1-3만원)', '₩₩₩₩ (3-5만원)', '₩₩₩₩₩ (5만원 이상)'];
+            const priceRange = priceRanges[Math.floor(Math.random() * priceRanges.length)];
+            
+            // 인기도/리뷰 수 랜덤 생성
+            const reviewCount = Math.floor(Math.random() * 500) + 10;
+            const popularity = Math.floor(Math.random() * 100) + 1;
+            
+            // 주차 가능 여부
+            const hasParking = Math.random() > 0.3 ? '가능' : '불가능';
+            
+            // 예약 가능 여부
+            const isReservable = Math.random() > 0.4 ? '가능' : '불가능';
+            
+            detailContent.innerHTML = `
+                <div class="restaurant-detail-card">
+                    <h4>${place.place_name}</h4>
+                    <div class="info-section">
+                        <div class="info-row">
+                            <span class="info-label">📍 주소</span>
+                            <span class="info-value">${place.road_address_name || place.address_name}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">📞 전화번호</span>
+                            <span class="info-value">${place.phone || "정보 없음"}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">🏷 카테고리</span>
+                            <span class="info-value">${place.category_name || "음식점"}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">🌐 거리</span>
+                            <span class="info-value">
+                                약 ${distanceText}
+                                <div class="distance-info">도보 ${Math.ceil(distance/80)}분, 자동차 ${Math.ceil(distance/1000)}분</div>
+                            </span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">⭐ 평점</span>
+                            <span class="info-value">
+                                ${rating} ${stars}
+                                <div class="distance-info">리뷰 ${reviewCount}개</div>
+                            </span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">🕒 영업시간</span>
+                            <span class="info-value">${businessHours}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">💰 가격대</span>
+                            <span class="info-value">${priceRange}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">🚗 주차</span>
+                            <span class="info-value">${hasParking}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">📅 예약</span>
+                            <span class="info-value">${isReservable}</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">🔥 인기도</span>
+                            <span class="info-value">${popularity}% (이 지역 상위)</span>
+                        </div>
+                        
+                        <div class="additional-info">
+                            <h5>💡 추가 정보</h5>
+                            <div class="info-value">
+                                • ${place.category_name ? place.category_name + ' 전문점' : '다양한 메뉴 제공'}<br>
+                                • ${hasParking === '가능' ? '주차 공간 확보' : '대중교통 이용 권장'}<br>
+                                • ${isReservable === '가능' ? '사전 예약 가능' : '현장 대기'}<br>
+                                • 평일/주말 영업시간 동일
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // 세부정보 영역 초기화
+        // ============================================
+        function resetDetailInfo() {
+            const detailContent = document.getElementById("restaurant-detail-content");
+            detailContent.innerHTML = '<p class="no-selection">지도에서 음식점을 클릭하면 상세정보가 표시됩니다</p>';
+        }
+
+        // ============================================
+        // 두 좌표 간의 거리 계산 (Haversine 공식)
+        // ============================================
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // 지구의 반지름 (km)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c * 1000; // 미터 단위로 변환
+            return distance;
+        }
+
+        // ============================================
+        // 이벤트 리스너 설정
+        // ============================================
+        function setupEventListeners() {
+            const searchBtn = document.getElementById("search-btn");
+            const searchInput = document.getElementById("search-input");
+
+            // 검색 버튼 클릭 이벤트
+            searchBtn.addEventListener("click", () => {
+                const keyword = searchInput.value.trim();
+                if (keyword) {
+                    searchPlaces(keyword);
+                } else {
+                    alert("검색어를 입력해주세요!");
+                }
+            });
+
+            // 엔터키 이벤트
+            searchInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    const keyword = searchInput.value.trim();
+                    if (keyword) {
+                        searchPlaces(keyword);
+                    } else {
+                        alert("검색어를 입력해주세요!");
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // 페이지 로드 후 실행
+        // ============================================
+        window.onload = async () => {
+            console.log('📄 페이지 로드 완료');
+            
+            try {
+                // 1. 사용자 위치 가져오기
+                await getUserLocation();
+                
+                // 2. 지도 초기화
+                initMap();
+                
+                // 3. 이벤트 리스너 설정
+                setupEventListeners();
+                
+            } catch (error) {
+                console.error('❌ 초기화 오류:', error);
+                alert('초기화 중 오류가 발생했습니다.');
+            }
+        };
+    </script>
 </body>
 </html>
