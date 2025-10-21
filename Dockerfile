@@ -1,5 +1,5 @@
-# Multi-stage build for Spring Boot application
-FROM openjdk:17-jdk-slim as builder
+# Spring Boot application
+FROM openjdk:17-jdk-slim
 
 # Set working directory
 WORKDIR /app
@@ -14,17 +14,8 @@ COPY src/ src/
 # Build the application
 RUN ./gradlew build -x test
 
-# Runtime stage
-FROM openjdk:17-jre-slim
-
-# Set working directory
-WORKDIR /app
-
-# Copy the built jar
-COPY --from=builder /app/build/libs/*.jar app.jar
-
 # Expose port
 EXPOSE 8080
 
 # Run the application
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "build/libs/*.jar"]
