@@ -2,6 +2,7 @@ package com.chatfood.service;
 
 import com.chatfood.dto.FlaskResponse;
 import com.chatfood.dto.UserInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -13,8 +14,8 @@ public class RecommendationService {
 
     // 서비스가 생성될 때 WebClient를 초기화합니다.
     // Python Flask 서버의 주소를 가리킵니다.
-    public RecommendationService() {
-        this.webClient = WebClient.create("http://127.0.0.1:5000");
+    public RecommendationService(@Value("${python.ai.server.url:http://127.0.0.1:5000}") String pythonAiUrl) {
+        this.webClient = WebClient.create(pythonAiUrl);
     }
 
     // 사용자 정보를 Flask 서버로 보내고 추천 결과를 받아옵니다.
