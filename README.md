@@ -85,6 +85,36 @@ ChatFood/
 - JDK 17 이상
 - Gradle 8.5 (wrapper 포함)
 
+### API 키 설정
+
+1. **OpenAI API 키 설정**
+   ```bash
+   # src/main/resources/application-local.properties 파일 생성
+   openai.api.key=your-actual-openai-api-key-here
+   ```
+
+2. **Kakao API 키 설정** (선택사항)
+   ```bash
+   # src/main/resources/application-local.properties 파일에 추가
+   kakao.rest.api.key=your-kakao-api-key
+   kakao.javascript.key=your-kakao-javascript-key
+   ```
+
+3. **로컬 프로파일로 실행**
+   ```bash
+   # Windows
+   gradlew.bat bootRun --args='--spring.profiles.active=local'
+   
+   # Linux/Mac
+   ./gradlew bootRun --args='--spring.profiles.active=local'
+   ```
+
+### 보안 주의사항
+
+- `application-local.properties` 파일은 `.gitignore`에 포함되어 Git에 커밋되지 않습니다
+- 실제 API 키는 절대 공개 저장소에 커밋하지 마세요
+- 프로덕션 환경에서는 환경 변수나 보안 관리 시스템을 사용하세요
+
 ## API 엔드포인트
 
 - `GET /` - 웰컴 메시지

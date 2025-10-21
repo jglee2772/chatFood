@@ -1,109 +1,133 @@
 package com.chatfood.controller;
 
 import com.chatfood.dto.*;
-import com.chatfood.entity.User;
-import com.chatfood.repository.UserRepository;
-import com.chatfood.service.RecommendationService;
+import com.chatfood.service.GPTConversationService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @RestController
 public class ChatFoodController {
 
-    private final RecommendationService recommendationService;
-    private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ChatFoodController.class);
+    private final GPTConversationService gptConversationService;
 
     @Autowired
-    public ChatFoodController(RecommendationService recommendationService, UserRepository userRepository) {
-        this.recommendationService = recommendationService;
-        this.userRepository = userRepository;
+    public ChatFoodController(GPTConversationService gptConversationService) {
+        this.gptConversationService = gptConversationService;
+    }
+
+    @GetMapping("/initial-recommendations")
+    public ChatResponse getInitialRecommendations(HttpSession session) {
+        // 요청 ID 생성 및 MDC 설정
+        String requestId = UUID.randomUUID().toString().substring(0, 8);
+        MDC.put("requestId", requestId);
+        
+        String sessionId = session.getId();
+        String userEmail = (String) session.getAttribute("loggedInUserEmail");
+        
+        logger.info("초기 추천 요청 수신 - 세션ID: {}, 사용자: {}", 
+                   sessionId, userEmail != null ? userEmail : "비로그인");
+        
+        try {
+            // GPT 기반 초기 추천 생성
+            ConversationResponse conversationResponse = gptConversationService.getInitialRecommendations(sessionId, userEmail);
+            
+            // ConversationResponse를 ChatResponse로 변환
+            ChatResponse response = convertToChatResponse(conversationResponse);
+            
+            logger.info("초기 추천 생성 완료 - 응답타입: {}, 추천수: {}", 
+                       conversationResponse.getConversationType(), 
+                       response.getRecommendations().size());
+            
+            return response;
+            
+        } catch (Exception e) {
+            logger.error("초기 추천 생성 중 오류 발생", e);
+            ChatResponse errorResponse = new ChatResponse();
+            errorResponse.setReply("죄송합니다, 초기 추천 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+            return errorResponse;
+        } finally {
+            // MDC 정리
+            MDC.clear();
+        }
     }
 
     @PostMapping("/chat")
     public ChatResponse handleChat(@RequestBody ChatRequest request, HttpSession session) {
+        // 요청 ID 생성 및 MDC 설정
+        String requestId = UUID.randomUUID().toString().substring(0, 8);
+        MDC.put("requestId", requestId);
+        
         String userMessage = request.getMessage();
-        ChatResponse response = new ChatResponse();
-        boolean isFirstMessage = "__INIT__".equals(userMessage);
-
-        if (isFirstMessage) {
-            String loggedInUserEmail = (String) session.getAttribute("loggedInUserEmail");
-
-            if (loggedInUserEmail != null) {
-                Optional<User> userOptional = userRepository.findByEmail(loggedInUserEmail);
-                if (userOptional.isPresent()) {
-                    return createRecommendationResponse(userOptional.get());
-                } else {
-                    response.setReply("안녕하세요! 로그인 정보에 오류가 있습니다. 다시 로그인해주세요.");
-                }
-            } else {
-                response.setReply("안녕하세요! 점심 메뉴를 추천해 드릴까요? 원하시는 음식 종류를 말씀해주세요.");
-            }
-        } else {
-            // TODO: 이어지는 대화에 대한 로직 구현 (GPT 연동 등)
-            response.setReply("네, 알겠습니다!");
-        }
-        return response;
-    }
-
-    /**
-     * 사용자 정보를 바탕으로 AI 추천을 요청하고, 그 결과를 ChatResponse 객체로 만들어 반환합니다.
-     * @param user 로그인한 사용자 엔티티
-     * @return 챗봇 응답 및 추천 메뉴 목록이 담긴 ChatResponse 객체
-     */
-    private ChatResponse createRecommendationResponse(User user) {
-        ChatResponse response = new ChatResponse();
+        String sessionId = session.getId();
+        String userEmail = (String) session.getAttribute("loggedInUserEmail");
+        
+        logger.info("채팅 요청 수신 - 메시지: {}, 세션ID: {}, 사용자: {}", 
+                   userMessage, sessionId, userEmail != null ? userEmail : "비로그인");
+        
         try {
-            UserInfo userInfoForAI = convertUserToUserInfo(user);
-
-            // 1. 채팅창에 표시될 기본 응답 메시지를 설정합니다.
-            String greeting = String.format(
-                    "%s님, 안녕하세요! 🙌\n회원님의 정보를 바탕으로 찾아본 오늘의 추천 메뉴입니다! \n 아니면 다른 메뉴 추천해드릴까요?",
-                    user.getName()
-            );
-            response.setReply(greeting);
-
-            // 2. Python 서버에 추천을 요청합니다.
-            FlaskResponse flaskResponse = recommendationService.getRecommendations(userInfoForAI).block();
-
-            // 3. 추천 결과를 문자열이 아닌, 추천 목록(List)에 담아줍니다.
-            if (flaskResponse != null && flaskResponse.getRecommendations() != null && !flaskResponse.getRecommendations().isEmpty()) {
-                response.setRecommendations(flaskResponse.getRecommendations());
-            } else {
-                // 추천 메뉴가 없을 경우, 빈 리스트를 설정합니다.
-                response.setRecommendations(Collections.emptyList());
-            }
-
+                    // GPT 기반 대화 시스템 사용
+                    ConversationResponse conversationResponse = gptConversationService.processConversation(
+                        userMessage, sessionId, userEmail
+                    );
+            
+            // ConversationResponse를 ChatResponse로 변환
+            ChatResponse response = convertToChatResponse(conversationResponse);
+            
+            logger.info("대화 처리 완료 - 응답타입: {}, 추천수: {}", 
+                       conversationResponse.getConversationType(), 
+                       response.getRecommendations().size());
+            
+            return response;
+            
         } catch (Exception e) {
-            System.err.println("추천 시스템 호출 중 오류 발생: " + e.getMessage());
-            response.setReply("죄송합니다, 추천 시스템에 문제가 발생했어요. 잠시 후 다시 시도해주세요.");
+            logger.error("채팅 처리 중 오류 발생", e);
+            ChatResponse errorResponse = new ChatResponse();
+            errorResponse.setReply("죄송합니다, 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+            return errorResponse;
+        } finally {
+            // MDC 정리
+            MDC.clear();
         }
-        return response;
     }
 
     /**
-     * User 엔티티 객체를 AI 서버 요청에 필요한 UserInfo DTO로 변환합니다.
-     * @param user 사용자 엔티티
-     * @return AI 모델 입력용 UserInfo DTO
+     * ConversationResponse를 ChatResponse로 변환
      */
-    private UserInfo convertUserToUserInfo(User user) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setName(user.getName());
-        userInfo.setGender(user.getGender());
-        userInfo.setAgeGroup(user.getAge());
-        userInfo.setRegion(user.getRegion());
-        userInfo.setPrefCategory(user.getOftenCategory());
-        if (user.getLikeCategory() != null && !user.getLikeCategory().isEmpty()) {
-            userInfo.setFavCategories(Arrays.asList(user.getLikeCategory().split(",")));
+    private ChatResponse convertToChatResponse(ConversationResponse conversationResponse) {
+        ChatResponse chatResponse = new ChatResponse();
+        chatResponse.setReply(conversationResponse.getReply());
+        chatResponse.setRecommendations(conversationResponse.getRecommendations());
+        chatResponse.setPythonRecommendations(conversationResponse.getPythonRecommendations());
+        
+        
+        // 대화 옵션을 추천에 추가 (프론트엔드에서 처리할 수 있도록)
+        if (!conversationResponse.getOptions().isEmpty()) {
+            // 옵션들을 추천 목록에 추가
+            for (ConversationOption option : conversationResponse.getOptions()) {
+                if ("food".equals(option.getType())) {
+                    // 음식 옵션은 추천으로 추가
+                    Recommendation rec = new Recommendation();
+                    rec.setFoodName(option.getText());
+                    rec.setPriceMin(0);
+                    rec.setPriceMax(0);
+                    chatResponse.getRecommendations().add(rec);
+                }
+            }
         }
-        return userInfo;
+        
+        return chatResponse;
     }
+
+
 }
 

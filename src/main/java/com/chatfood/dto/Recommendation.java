@@ -19,5 +19,15 @@ public class Recommendation {
     // Python의 "price_max" JSON 키를 이 필드에 매핑합니다.
     @JsonProperty("price_max")
     private int priceMax;
+
+    // 기본 생성자
+    public Recommendation() {}
+
+    // 매개변수가 있는 생성자
+    public Recommendation(String foodName, int priceMin, int priceMax) {
+        this.foodName = foodName;
+        this.priceMin = priceMin;
+        this.priceMax = priceMax;
+    }
 }
 

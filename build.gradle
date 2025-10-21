@@ -34,6 +34,11 @@ dependencies {
     // H2 Database (개발/테스트용 - 필요시 주석 처리)
     runtimeOnly 'com.h2database:h2'
     
+    // 로깅 관련 의존성
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'ch.qos.logback:logback-classic'
+    implementation 'ch.qos.logback:logback-core'
+    
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

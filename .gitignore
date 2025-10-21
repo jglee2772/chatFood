@@ -5,6 +5,12 @@
 .env.test.local
 .env.production.local
 
+# API 키 및 민감한 정보
+application-local.properties
+application-secret.properties
+*secret*
+*key*
+
 # Python
 __pycache__/
 *.py[cod]

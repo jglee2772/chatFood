@@ -6,58 +6,15 @@
     <title>LunchBot - 오늘 뭐 먹을까?</title>
     <link rel="stylesheet" href="/css/chatFood.css" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
-
-    <!-- 추천 카드 UI를 위한 스타일 -->
-    <style>
-        /* 추천 카드들이 담길 전체 영역 */
-        #recommendation-area {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 10px;
-            gap: 12px; /* 카드 사이 간격 */
-            border-top: 1px solid #f0f0f0;
-            background-color: #f9f9f9;
-        }
-
-        /* 개별 추천 카드 스타일 */
-        .recommendation-card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* D12px -> 12px 오타 수정 */
-            padding: 15px;
-            text-align: center;
-            width: 30%;
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            border: 1px solid #eee;
-        }
-
-        /* 카드에 마우스를 올렸을 때 효과 */
-        .recommendation-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-        }
-
-        .food-icon {
-            font-size: 2.2rem;
-            margin-bottom: 8px;
-        }
-
-        .food-name {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .food-price {
-            font-size: 0.8rem;
-            color: #666;
-        }
-    </style>
 </head>
 
 <body>
+<!-- 🌞 중심 빛 효과 -->
+<div class="light-glow"></div>
+
+<!-- 🏠 홈 버튼 -->
+<a href="/" class="home-btn">🏠</a>
+
 <div class="chat-wrapper">
     <div class="logo-section">
         <div class="logo-icon">🤖</div>
@@ -69,24 +26,31 @@
             <div class="chat-messages" id="chat-messages">
                 <!-- 메시지는 동적으로 채워집니다 -->
             </div>
-
-            <!-- 추천 카드가 표시될 새로운 영역 -->
-            <div id="recommendation-area"></div>
+            
+            <!-- 대화 옵션 영역 -->
+            <div id="conversation-options" class="conversation-options"></div>
 
             <div class="input-area">
                 <input type="text" id="message-input" placeholder="메시지를 입력하세요..." />
                 <button class="send-btn" id="send-btn">전송</button>
             </div>
         </div>
-
-        <div class="chat-right">
-            <h3>최근 대화 기록</h3>
-            <ul class="history-list">
-                <!-- 이 부분은 예시입니다 -->
-                <li><span>10/20</span> 제육볶음</li>
-                <li><span>10/19</span> 초밥</li>
-            </ul>
+        
+        <!-- GPT 대화 추천 영역 - 채팅창 오른쪽 -->
+        <div class="gpt-recommendation-section">
+            <div class="gpt-recommendation-header">
+                <h3>💬 대화 중 추천</h3>
+            </div>
+            <div id="gpt-recommendation-area" class="gpt-recommendation-area"></div>
         </div>
+    </div>
+    
+    <!-- Python AI 개인화 추천 영역 - 하단 고정 -->
+    <div class="python-recommendation-section">
+        <div class="python-recommendation-header">
+            <h3>🎯 AI 맞춤 추천</h3>
+        </div>
+        <div id="python-recommendation-area" class="python-recommendation-area"></div>
     </div>
 </div>
 
@@ -94,17 +58,15 @@
     const chatMessages = document.getElementById('chat-messages');
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
-    const recommendationArea = document.getElementById('recommendation-area');
+    const gptRecommendationArea = document.getElementById('gpt-recommendation-area');
+    const pythonRecommendationArea = document.getElementById('python-recommendation-area');
+    const conversationOptions = document.getElementById('conversation-options');
 
     const API_URL = '/chat';
     const sessionId = `session_${Date.now()}`;
 
     // 페이지가 로드되면, 서버에 첫 인사를 요청합니다.
-    window.onload = async () => {
-        showTypingIndicator();
-        await sendMessage("__INIT__", true);
-        hideTypingIndicator();
-    };
+    // (이 함수는 아래에서 재정의됩니다)
 
     // 메시지를 서버로 보내고 응답을 처리하는 메인 함수
     const sendMessage = async (messageText, isInitial = false) => {
@@ -116,7 +78,8 @@
             messageInput.value = '';
         }
 
-        recommendationArea.innerHTML = '';
+        gptRecommendationArea.innerHTML = '';
+        conversationOptions.innerHTML = '';
         showTypingIndicator();
 
         try {
@@ -134,8 +97,15 @@
 
             addMessageToChat('bot', data.reply);
 
+            // GPT 대화 추천은 오른쪽 영역에 표시
             if (data.recommendations && data.recommendations.length > 0) {
-                displayRecommendationCards(data.recommendations);
+                displayGPTRecommendationCards(data.recommendations);
+                addGPTRecommendationClickEvents(data.recommendations);
+            }
+
+            // 대화 옵션 표시
+            if (data.options && data.options.length > 0) {
+                displayConversationOptionsFromResponse(data.options);
             }
 
         } catch (error) {
@@ -145,12 +115,82 @@
         }
     };
 
-    // 추천 카드 UI를 동적으로 생성하는 함수
+    // GPT 대화 추천 카드 표시 함수
+    const displayGPTRecommendationCards = (recommendations) => {
+        gptRecommendationArea.innerHTML = '';
+        recommendations.forEach(rec => {
+            const foodName = rec.foodName || rec.food_name;
+            if (!foodName) return;
+
+            const card = document.createElement('div');
+            card.className = 'gpt-recommendation-card';
+            card.setAttribute('data-food', foodName);
+            card.style.cursor = 'pointer'; // 클릭 가능함을 표시
+
+            const priceMin = rec.priceMin || rec.price_min || 0;
+            const priceMax = rec.priceMax || rec.price_max || 0;
+
+            card.innerHTML = `
+                <h4>${foodName}</h4>
+                <div class="price">${priceMin.toLocaleString()}원 ~ ${priceMax.toLocaleString()}원</div>
+                <div class="click-hint">클릭하여 검색</div>
+            `;
+
+            gptRecommendationArea.appendChild(card);
+        });
+    };
+    
+    // Python AI 개인화 추천 카드 표시 함수
+    const displayPythonRecommendationCards = (recommendations) => {
+        pythonRecommendationArea.innerHTML = '';
+        
+        if (!recommendations || recommendations.length === 0) {
+            return;
+        }
+        
+        recommendations.forEach((rec, index) => {
+            const foodName = rec.foodName || rec.food_name;
+            if (!foodName) {
+                return;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'python-recommendation-card';
+            card.setAttribute('data-food', foodName);
+
+            let icon = '🍴';
+            if(foodName.includes('국밥') || foodName.includes('비빔밥') || foodName.includes('제육')) icon = '🍚';
+            if(foodName.includes('짜장') || foodName.includes('짬뽕') || foodName.includes('탕수육')) icon = '🍜';
+            if(foodName.includes('초밥') || foodName.includes('라멘') || foodName.includes('돈까스')) icon = '🍣';
+            if(foodName.includes('파스타') || foodName.includes('피자') || foodName.includes('스테이크')) icon = '🍕';
+
+            const priceMin = rec.priceMin || rec.price_min || 0;
+            const priceDisplay = priceMin > 0 ? `약 ${priceMin.toLocaleString()}원 ~` : '';
+
+            card.innerHTML = `
+                <div class="food-icon">${icon}</div>
+                <div class="food-name">${foodName}</div>
+                <div class="food-price">${priceDisplay}</div>
+            `;
+
+            card.onclick = () => {
+                addMessageToChat('user', `${foodName} 좋아요!`);
+                setTimeout(() => {
+                    const encodedFoodName = encodeURIComponent(foodName);
+                    window.location.href = `/foodMap?search=${encodedFoodName}`;
+                }, 1000);
+            };
+
+            pythonRecommendationArea.appendChild(card);
+        });
+    };
+    
+    // 기존 추천 카드 UI를 동적으로 생성하는 함수 (호환성 유지)
     const displayRecommendationCards = (recommendations) => {
         recommendations.forEach(rec => {
-            // ✨ 1. rec.foodName 대신 rec.food_name을 사용하도록 수정합니다.
-            const foodName = rec.food_name;
-            if (!foodName) return; // food_name이 없는 데이터는 건너뜁니다.
+            // foodName 또는 food_name 필드 확인
+            const foodName = rec.foodName || rec.food_name;
+            if (!foodName) return;
 
             const card = document.createElement('div');
             card.className = 'recommendation-card';
@@ -161,12 +201,14 @@
             if(foodName.includes('초밥') || foodName.includes('라멘') || foodName.includes('돈까스')) icon = '🍣';
             if(foodName.includes('파스타') || foodName.includes('피자') || foodName.includes('스테이크')) icon = '🍕';
 
+            // 가격 정보 처리
+            const priceMin = rec.priceMin || rec.price_min || 0;
+            const priceDisplay = priceMin > 0 ? `약 ${priceMin.toLocaleString()}원 ~` : '';
+
             card.innerHTML = `
                 <div class="food-icon">${icon}</div>
                 <div class="food-name">${foodName}</div>
-
-                <!-- ✨ 2. rec.priceMin 대신 rec.price_min을 사용하도록 수정합니다. -->
-                <div class="food-price">약 ${rec.price_min.toLocaleString()}원 ~</div>
+                <div class="food-price">${priceDisplay}</div>
             `;
 
             card.onclick = () => {
@@ -180,8 +222,52 @@
                 }, 1000);
             };
 
-            recommendationArea.appendChild(card);
+            pythonRecommendationArea.appendChild(card);
         });
+    };
+
+    // 서버 응답의 옵션을 표시하는 함수
+    const displayConversationOptionsFromResponse = (options) => {
+        conversationOptions.innerHTML = '';
+        options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'conversation-option';
+            optionElement.textContent = option.text;
+            optionElement.onclick = () => {
+                sendMessage(option.text);
+            };
+            conversationOptions.appendChild(optionElement);
+        });
+    };
+
+    // 대화 옵션을 표시하는 함수
+    const displayConversationOptions = (recommendations) => {
+        // 음식 선택 옵션들
+        recommendations.forEach(rec => {
+            const foodName = rec.foodName || rec.food_name;
+            if (foodName) {
+                const option = document.createElement('div');
+                option.className = 'conversation-option food-option';
+                option.textContent = foodName;
+                option.onclick = () => {
+                    addMessageToChat('user', `${foodName} 좋아요!`);
+                    setTimeout(() => {
+                        const encodedFoodName = encodeURIComponent(foodName);
+                        window.location.href = `/foodMap?search=${encodedFoodName}`;
+                    }, 1000);
+                };
+                conversationOptions.appendChild(option);
+            }
+        });
+
+        // 대화 이어가기 옵션
+        const continueOption = document.createElement('div');
+        continueOption.className = 'conversation-option continue-option';
+        continueOption.textContent = '다른 음식도 추천해주세요';
+        continueOption.onclick = () => {
+            sendMessage('다른 음식도 추천해주세요');
+        };
+        conversationOptions.appendChild(continueOption);
     };
 
     // 대화 메시지를 채팅창에 추가하는 함수
@@ -211,13 +297,93 @@
         }
     };
 
-    // 이벤트 리스너 (기존과 동일)
+    // 자연스러운 대화 옵션들
+    const addNaturalConversationOptions = () => {
+        const naturalOptions = [
+            '배고파요 😋',
+            '오늘 기분이 좋아요! 😊',
+            '스트레스 받았어요 😮‍💨',
+            '날씨가 추워요 ❄️',
+            '디저트 먹고 싶어요 🍰',
+            '어떤 음식이 좋을까요? 🤔',
+            '오늘 힘들었어요 😴',
+            '기분이 우울해요 😢',
+            '피곤해요 😩',
+            '행복해요! 🎉',
+            '시간이 없어요 ⏰',
+            '뭔가 특별한 거 먹고 싶어요 ✨'
+        ];
+
+        naturalOptions.forEach(text => {
+            const button = document.createElement('div');
+            button.className = 'conversation-option';
+            button.textContent = text;
+            button.onclick = () => {
+                sendMessage(text);
+            };
+            conversationOptions.appendChild(button);
+        });
+    };
+
+    // 초기 대화 옵션 표시
+    const showInitialOptions = () => {
+        conversationOptions.innerHTML = '';
+        addNaturalConversationOptions();
+    };
+
+    // 이벤트 리스너
     sendBtn.addEventListener('click', () => sendMessage());
     messageInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             sendMessage();
         }
     });
+
+    // 초기 추천 로드
+    const loadInitialRecommendations = async () => {
+        try {
+            const response = await fetch('/initial-recommendations');
+            const data = await response.json();
+            
+            // AI 응답을 채팅창에 표시
+            if (data.reply) {
+                addMessageToChat('bot', data.reply);
+            }
+            
+            // Python AI 개인화 추천은 하단 고정 영역에 표시
+            if (data.pythonRecommendations && data.pythonRecommendations.length > 0) {
+                displayPythonRecommendationCards(data.pythonRecommendations);
+            }
+            
+            // 대화 옵션 표시
+            if (data.options && data.options.length > 0) {
+                displayConversationOptionsFromResponse(data.options);
+            }
+            
+        } catch (error) {
+            console.error('초기 추천 로드 실패:', error);
+        }
+    };
+    
+    // GPT 추천 음식 클릭 이벤트 추가
+    const addGPTRecommendationClickEvents = (recommendations) => {
+        recommendations.forEach(rec => {
+            const foodName = rec.foodName || rec.food_name;
+            const card = document.querySelector(`[data-food="${foodName}"]`);
+            if (card) {
+                card.addEventListener('click', () => {
+                    // 음식 선택 시 foodMap으로 이동
+                    window.location.href = `/foodMap?selectedFood=${encodeURIComponent(foodName)}`;
+                });
+            }
+        });
+    };
+    
+    
+    // 페이지 로드 시 초기 추천 로드
+    window.onload = async () => {
+        await loadInitialRecommendations();
+    };
 
 </script>
 </body>

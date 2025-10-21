@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 프로덕션 환경 전용 로그 설정 -->
+    
+    <!-- 프로덕션용 JSON 로그 포맷 -->
+    <property name="PROD_JSON_PATTERN" 
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS}"/>
+
+    <!-- 프로덕션용 파일 로그 포맷 -->
+    <property name="PROD_FILE_PATTERN" 
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- 프로덕션용 일반 로그 파일 -->
+    <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/chatfood-prod.log</file>
+        <encoder>
+            <pattern>${PROD_FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/chatfood-prod.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>500MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 프로덕션용 에러 로그 파일 -->
+    <appender name="PROD_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/chatfood-error-prod.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>${PROD_FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/chatfood-error-prod.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>200MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 프로덕션용 JSON 로그 (ELK Stack) -->
+    <appender name="PROD_JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/chatfood-json-prod.log</file>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <logLevel/>
+                <loggerName/>
+                <message/>
+                <mdc/>
+                <arguments/>
+                <stackTrace/>
+                <pattern>
+                    <pattern>
+                        {
+                            "service": "chatfood",
+                            "environment": "production",
+                            "version": "${spring.application.version:-unknown}",
+                            "host": "${HOSTNAME:-unknown}",
+                            "instance": "${spring.application.name:-chatfood}",
+                            "thread": "%thread",
+                            "class": "%logger{36}",
+                            "requestId": "%X{requestId:-}",
+                            "userId": "%X{userId:-}",
+                            "sessionId": "%X{sessionId:-}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/chatfood-json-prod.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>1GB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 비동기 처리 -->
+    <appender name="ASYNC_PROD_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="PROD_FILE"/>
+        <queueSize>2048</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <appender name="ASYNC_PROD_ERROR_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="PROD_ERROR_FILE"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <appender name="ASYNC_PROD_JSON_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="PROD_JSON_FILE"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+    </appender>
+
+    <!-- 애플리케이션 로거 (프로덕션) -->
+    <logger name="com.chatfood" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_PROD_FILE"/>
+        <appender-ref ref="ASYNC_PROD_ERROR_FILE"/>
+        <appender-ref ref="ASYNC_PROD_JSON_FILE"/>
+    </logger>
+
+    <!-- Spring Framework 로거 (프로덕션) -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="WARN"/>
+
+    <!-- 데이터베이스 로거 (프로덕션) -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
+
+    <!-- 외부 라이브러리 로거 -->
+    <logger name="org.apache" level="WARN"/>
+    <logger name="org.tensorflow" level="WARN"/>
+    <logger name="tensorflow" level="WARN"/>
+
+    <!-- 루트 로거 (프로덕션) -->
+    <root level="WARN">
+        <appender-ref ref="ASYNC_PROD_FILE"/>
+        <appender-ref ref="ASYNC_PROD_ERROR_FILE"/>
+    </root>
+
+</configuration>
