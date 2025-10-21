@@ -99,8 +99,19 @@
 
             // GPT 대화 추천은 오른쪽 영역에 표시
             if (data.recommendations && data.recommendations.length > 0) {
+                console.log('GPT 추천 표시:', data.recommendations);
                 displayGPTRecommendationCards(data.recommendations);
                 addGPTRecommendationClickEvents(data.recommendations);
+            } else {
+                console.log('GPT 추천이 없음, 기본 추천 표시');
+                // 기본 추천 표시
+                const defaultRecommendations = [
+                    { foodName: '김치찌개', priceMin: 8000, priceMax: 10000 },
+                    { foodName: '비빔밥', priceMin: 9000, priceMax: 11000 },
+                    { foodName: '제육볶음', priceMin: 10000, priceMax: 12000 }
+                ];
+                displayGPTRecommendationCards(defaultRecommendations);
+                addGPTRecommendationClickEvents(defaultRecommendations);
             }
 
             // 대화 옵션 표시
@@ -372,8 +383,11 @@
             const card = document.querySelector(`[data-food="${foodName}"]`);
             if (card) {
                 card.addEventListener('click', () => {
+                    console.log('GPT 추천 클릭됨:', foodName);
+                    const searchUrl = `/foodMap?search=${encodeURIComponent(foodName)}`;
+                    console.log('이동할 URL:', searchUrl);
                     // 음식 선택 시 foodMap으로 이동
-                    window.location.href = `/foodMap?selectedFood=${encodeURIComponent(foodName)}`;
+                    window.location.href = searchUrl;
                 });
             }
         });

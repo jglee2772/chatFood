@@ -413,7 +413,10 @@
         // ============================================
         function getSearchParamFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('search');
+            const searchParam = urlParams.get('search');
+            console.log('URL 파라미터 확인:', window.location.search);
+            console.log('검색어:', searchParam);
+            return searchParam;
         }
 
         // ============================================

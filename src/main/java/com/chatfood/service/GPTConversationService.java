@@ -12,8 +12,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * GPT API를 활용한 간결한 대화 서비스
@@ -31,8 +29,7 @@ public class GPTConversationService {
     // 세션별 대화 컨텍스트 저장
     private final Map<String, ConversationContext> conversationContexts = new ConcurrentHashMap<>();
     
-    // 음식 이름 추출용 패턴
-    private final Pattern foodPattern = Pattern.compile("(김치찌개|비빔밥|제육볶음|불고기|갈비|삼겹살|냉면|물냉면|비빔냉면|막국수|국수|김밥|떡볶이|된장찌개|순두부찌개|부대찌개|삼계탕|닭볶음탕|찜닭|닭갈비|갈비탕|설렁탕|곰탕|육개장|추어탕|해장국|뼈해장국|회덮밥|냉국수|밀면|콩국수|오이냉국|시원한 국수|초밥|사시미|연어덮밥|참치회|라멘|우동|돈까스|스테이크|파스타|피자|치킨|햄버거|짜장면|짬뽕|탕수육|라면|만두|호떡|붕어빵|순대|튀김)");
+    // 음식 이름 추출용 패턴 제거 - GPT 직접 추출 방식 사용
     
     @Autowired
     public GPTConversationService(UserRepository userRepository, 
@@ -190,6 +187,11 @@ public class GPTConversationService {
             - 사용자가 이미 답변한 내용을 다시 묻지 마세요
             - 대화가 진행되면 새로운 정보를 바탕으로 다음 질문을 하세요
             - 사용자의 선호도나 요구사항이 바뀌면 그에 맞게 대화를 이어가세요
+            - 반드시 구체적인 음식 이름을 언급하세요 (예: 김치찌개, 비빔밥, 순두부찌개 등)
+            - 사용자의 요구사항을 정확히 파악하고 그에 맞는 음식을 추천하세요
+            - "점심에 적합한", "찾기 쉬운", "대중적인" 등의 키워드를 정확히 이해하세요
+            - 매번 다른 방식으로 응답하여 자연스러운 대화를 유지하세요
+            - 마무리 문구를 다양하게 사용하세요
             
             예시 대화:
             사용자: "가볍게 먹고싶어"
@@ -197,6 +199,15 @@ public class GPTConversationService {
             
             사용자: "밥류가 먹고싶어"  
             AI: "밥류로는 비빔밥, 김치볶음밥, 주먹밥이 가볍게 먹기 좋을 것 같아요. 어떤 걸 시도해보고 싶으세요?"
+            
+            사용자: "점심메뉴에 적합한걸로"
+            AI: "점심에 딱 좋은 음식들이에요! 김치찌개, 비빔밥, 된장찌개 중에서 어떤 게 땡기시나요?"
+            
+            사용자: "찾기 쉬운 음식으로"
+            AI: "어디서든 쉽게 찾을 수 있는 음식들이에요! 김밥, 라면, 돈까스는 어떠세요?"
+            
+            사용자: "국물이 있는걸로"
+            AI: "국물이 시원한 음식들이에요! 김치찌개, 냉면, 우동 중에 어떤 게 좋으실까요?"
             
             사용자 정보: %s
             
@@ -255,18 +266,59 @@ public class GPTConversationService {
      * GPT 응답에서 음식 이름 추출
      */
     private List<String> extractFoodFromGPT(String gptResponse) {
-        List<String> foods = new ArrayList<>();
-        Matcher matcher = foodPattern.matcher(gptResponse);
+        logger.info("GPT 응답에서 음식 추출 시도: {}", gptResponse);
         
-        while (matcher.find()) {
-            String food = matcher.group(1);
-            if (!foods.contains(food)) {
-                foods.add(food);
-            }
+        // GPT에게 직접 음식 목록 요청
+        List<String> foods = requestFoodListFromGPT(gptResponse);
+        
+        // 음식이 추출되지 않았을 때 기본 추천 제공
+        if (foods.isEmpty()) {
+            logger.warn("GPT 응답에서 음식을 추출하지 못함, 기본 추천 제공");
+            foods.add("김치찌개");
+            foods.add("비빔밥");
+            foods.add("제육볶음");
         }
         
         // 최대 3개까지만 반환
-        return foods.subList(0, Math.min(foods.size(), 3));
+        List<String> result = foods.subList(0, Math.min(foods.size(), 3));
+        logger.info("최종 추천 음식: {}", result);
+        return result;
+    }
+    
+    /**
+     * GPT에게 직접 음식 목록 요청
+     */
+    private List<String> requestFoodListFromGPT(String originalResponse) {
+        try {
+            String prompt = String.format("""
+                다음 응답에서 추천된 음식 이름만 3개 추출해주세요.
+                음식 이름만 쉼표로 구분해서 답변하세요.
+                사용자의 요구사항에 맞는 음식을 우선적으로 추출하세요.
+                
+                응답: %s
+                
+                예시: 김치찌개, 비빔밥, 순두부찌개
+                """, originalResponse);
+            
+            String gptFoodResponse = callGPTAPI(prompt, "음식 추출", null);
+            
+            // 쉼표로 분리하여 음식 목록 추출
+            List<String> foods = new ArrayList<>();
+            if (gptFoodResponse != null && !gptFoodResponse.trim().isEmpty()) {
+                String[] foodArray = gptFoodResponse.split(",");
+                for (String food : foodArray) {
+                    String trimmedFood = food.trim();
+                    if (!trimmedFood.isEmpty()) {
+                        foods.add(trimmedFood);
+                    }
+                }
+            }
+            
+            return foods;
+        } catch (Exception e) {
+            logger.error("GPT 음식 목록 요청 실패", e);
+            return new ArrayList<>();
+        }
     }
     
     /**
