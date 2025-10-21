@@ -11,8 +11,8 @@ COPY gradle/ gradle/
 # Copy source code
 COPY src/ src/
 
-# Build the application
-RUN ./gradlew build -x test
+# Set execute permission for gradlew and build
+RUN chmod +x ./gradlew && ./gradlew build -x test
 
 # Expose port
 EXPOSE 8080
