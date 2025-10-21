@@ -22,4 +22,4 @@ RUN apt-get update && \
 EXPOSE 8080
 
 # Run the application
-CMD ["sh", "-c", "java -jar build/libs/chatFood-0.0.1-SNAPSHOT.jar"]
+CMD ["sh", "-c", "find build/libs/ -name '*.jar' -exec java -jar {} \\;"]
