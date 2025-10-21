@@ -11,8 +11,10 @@ COPY gradle/ gradle/
 # Copy source code
 COPY src/ src/
 
-# Set execute permission for gradlew and build
-RUN chmod +x ./gradlew && ./gradlew build -x test
+# Install Gradle and build
+RUN apt-get update && \
+    apt-get install -y gradle && \
+    gradle build -x test
 
 # Expose port
 EXPOSE 8080
