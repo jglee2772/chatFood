@@ -67,19 +67,27 @@
             const finalApiKey = kakaoApiKey;
             console.log('🔑 최종 사용할 API 키:', finalApiKey);
             
-            // 카카오 지도 API 동적 로드
+            // 카카오 지도 API 동적 로드 (동기적 로딩)
             const script = document.createElement('script');
-            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services`;
-            script.async = true;
+            script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services&autoload=false`;
+            script.async = false; // 동기적 로딩으로 변경
             
             // 카카오 API 로드 완료 후 콜백 함수 설정
             script.onload = function() {
                 console.log('✅ 카카오 API 로드 완료');
-                // API 로드 완료 후 약간의 지연을 주고 초기화 함수 호출
-                setTimeout(function() {
-                    console.log('🔄 지연 후 초기화 시작');
-                    initializeMapAfterKakaoLoad();
-                }, 100); // 100ms 지연
+                // 카카오 API가 완전히 로드될 때까지 기다린 후 초기화
+                if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.load) {
+                    kakao.maps.load(function() {
+                        console.log('✅ 카카오 지도 API 초기화 완료');
+                        initializeMapAfterKakaoLoad();
+                    });
+                } else {
+                    // fallback: 약간의 지연 후 초기화 시도
+                    setTimeout(function() {
+                        console.log('🔄 지연 후 초기화 시작');
+                        initializeMapAfterKakaoLoad();
+                    }, 200);
+                }
             };
             
             script.onerror = function() {
@@ -92,45 +100,32 @@
                 console.log('🔄 대체 로딩 방식 시도 중...');
                 const alternativeScript = document.createElement('script');
                 const alternativeUrl = window.location.protocol === 'https:' 
-                    ? `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services`
-                    : `http://dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services`;
+                    ? `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services&autoload=false`
+                    : `http://dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services&autoload=false`;
                 
                 alternativeScript.src = alternativeUrl;
-                alternativeScript.async = true;
+                alternativeScript.async = false; // 동기적 로딩으로 변경
                 
                 alternativeScript.onload = function() {
                     console.log('✅ 대체 방식으로 카카오 API 로드 성공');
-                    setTimeout(function() {
-                        console.log('🔄 대체 방식 지연 후 초기화 시작');
-                        initializeMapAfterKakaoLoad();
-                    }, 100);
+                    // 카카오 API가 완전히 로드될 때까지 기다린 후 초기화
+                    if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.load) {
+                        kakao.maps.load(function() {
+                            console.log('✅ 대체 방식으로 카카오 지도 API 초기화 완료');
+                            initializeMapAfterKakaoLoad();
+                        });
+                    } else {
+                        // fallback: 약간의 지연 후 초기화 시도
+                        setTimeout(function() {
+                            console.log('🔄 대체 방식 지연 후 초기화 시작');
+                            initializeMapAfterKakaoLoad();
+                        }, 200);
+                    }
                 };
                 
                 alternativeScript.onerror = function() {
                     console.error('❌ 대체 방식도 실패');
-                    
-                    // 지도 영역에 에러 메시지 표시
-                    const mapContainer = document.getElementById('map');
-                    if (mapContainer) {
-                        mapContainer.innerHTML = `
-                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: #f5f5f5; border-radius: 8px; padding: 20px; text-align: center;">
-                                <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
-                                <h3 style="color: #666; margin-bottom: 8px;">지도를 불러올 수 없습니다</h3>
-                                <p style="color: #999; font-size: 14px;">카카오 지도 API 설정을 확인해주세요.</p>
-                                <p style="color: #999; font-size: 12px; margin-top: 8px;">
-                                    도메인: ${window.location.hostname}<br>
-                                    프로토콜: ${window.location.protocol}
-                                </p>
-                                <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">새로고침</button>
-                            </div>
-                        `;
-                    }
-                    
-                    // 검색 기능 비활성화
-                    const searchInput = document.getElementById('search-input');
-                    const searchBtn = document.getElementById('search-btn');
-                    if (searchInput) searchInput.disabled = true;
-                    if (searchBtn) searchBtn.disabled = true;
+                    showMapError('카카오 지도 API 설정을 확인해주세요.');
                 };
                 
                 document.head.appendChild(alternativeScript);
@@ -517,16 +512,33 @@
         // ============================================
         // 카카오 API 로드 완료 후 실행할 초기화 함수
         // ============================================
+        let retryCount = 0;
+        const maxRetries = 10;
+        
         async function initializeMapAfterKakaoLoad() {
             console.log('📄 카카오 API 로드 완료, 초기화 시작');
             
             try {
-                // 0. 카카오 API 객체 확인
-                if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.InfoWindow) {
-                    console.error('❌ 카카오 API가 완전히 로드되지 않았습니다.');
+                // 0. 카카오 API 객체 확인 (더 엄격한 체크)
+                if (typeof kakao === 'undefined' || 
+                    !kakao.maps || 
+                    !kakao.maps.Map || 
+                    !kakao.maps.InfoWindow ||
+                    !kakao.maps.Marker ||
+                    !kakao.maps.services) {
+                    
+                    retryCount++;
+                    console.error(`❌ 카카오 API가 완전히 로드되지 않았습니다. (시도 ${retryCount}/${maxRetries})`);
+                    
+                    if (retryCount >= maxRetries) {
+                        console.error('❌ 최대 재시도 횟수 초과. 카카오 API 초기화를 포기합니다.');
+                        showMapError('카카오 지도 API를 로드할 수 없습니다. 페이지를 새로고침해주세요.');
+                        return;
+                    }
+                    
                     setTimeout(function() {
                         initializeMapAfterKakaoLoad();
-                    }, 200);
+                    }, 500); // 재시도 간격을 늘림
                     return;
                 }
                 
@@ -557,8 +569,31 @@
                 
             } catch (error) {
                 console.error('❌ 초기화 오류:', error);
-                alert('초기화 중 오류가 발생했습니다.');
+                showMapError('지도 초기화 중 오류가 발생했습니다.');
             }
+        }
+        
+        // ============================================
+        // 지도 에러 표시 함수
+        // ============================================
+        function showMapError(message) {
+            const mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                mapContainer.innerHTML = `
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: #f5f5f5; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
+                        <h3 style="color: #666; margin-bottom: 8px;">지도를 불러올 수 없습니다</h3>
+                        <p style="color: #999; font-size: 14px;">${message}</p>
+                        <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">새로고침</button>
+                    </div>
+                `;
+            }
+            
+            // 검색 기능 비활성화
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            if (searchInput) searchInput.disabled = true;
+            if (searchBtn) searchBtn.disabled = true;
         }
 
         // ============================================
