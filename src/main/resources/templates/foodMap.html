@@ -82,25 +82,52 @@
             script.onerror = function() {
                 console.error('❌ 카카오 API 로드 실패');
                 console.error('사용된 API 키:', finalApiKey);
+                console.error('현재 도메인:', window.location.hostname);
+                console.error('현재 프로토콜:', window.location.protocol);
                 
-                // 지도 영역에 에러 메시지 표시
-                const mapContainer = document.getElementById('map');
-                if (mapContainer) {
-                    mapContainer.innerHTML = `
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: #f5f5f5; border-radius: 8px; padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
-                            <h3 style="color: #666; margin-bottom: 8px;">지도를 불러올 수 없습니다</h3>
-                            <p style="color: #999; font-size: 14px;">카카오 지도 API 키를 확인해주세요.</p>
-                            <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">새로고침</button>
-                        </div>
-                    `;
-                }
+                // 대체 로딩 방식 시도 (HTTPS/HTTP)
+                console.log('🔄 대체 로딩 방식 시도 중...');
+                const alternativeScript = document.createElement('script');
+                const alternativeUrl = window.location.protocol === 'https:' 
+                    ? `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services`
+                    : `http://dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services`;
                 
-                // 검색 기능 비활성화
-                const searchInput = document.getElementById('search-input');
-                const searchBtn = document.getElementById('search-btn');
-                if (searchInput) searchInput.disabled = true;
-                if (searchBtn) searchBtn.disabled = true;
+                alternativeScript.src = alternativeUrl;
+                alternativeScript.async = true;
+                
+                alternativeScript.onload = function() {
+                    console.log('✅ 대체 방식으로 카카오 API 로드 성공');
+                    initializeMapAfterKakaoLoad();
+                };
+                
+                alternativeScript.onerror = function() {
+                    console.error('❌ 대체 방식도 실패');
+                    
+                    // 지도 영역에 에러 메시지 표시
+                    const mapContainer = document.getElementById('map');
+                    if (mapContainer) {
+                        mapContainer.innerHTML = `
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: #f5f5f5; border-radius: 8px; padding: 20px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
+                                <h3 style="color: #666; margin-bottom: 8px;">지도를 불러올 수 없습니다</h3>
+                                <p style="color: #999; font-size: 14px;">카카오 지도 API 설정을 확인해주세요.</p>
+                                <p style="color: #999; font-size: 12px; margin-top: 8px;">
+                                    도메인: ${window.location.hostname}<br>
+                                    프로토콜: ${window.location.protocol}
+                                </p>
+                                <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">새로고침</button>
+                            </div>
+                        `;
+                    }
+                    
+                    // 검색 기능 비활성화
+                    const searchInput = document.getElementById('search-input');
+                    const searchBtn = document.getElementById('search-btn');
+                    if (searchInput) searchInput.disabled = true;
+                    if (searchBtn) searchBtn.disabled = true;
+                };
+                
+                document.head.appendChild(alternativeScript);
             };
             
             document.head.appendChild(script);

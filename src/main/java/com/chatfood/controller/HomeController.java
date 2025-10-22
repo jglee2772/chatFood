@@ -1,15 +1,22 @@
 package com.chatfood.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Arrays;
 
 @Controller
 public class HomeController {
 
     @Value("${kakao.javascript.key}")
     private String kakaoJavaScriptKey;
+    
+    @Autowired
+    private Environment environment;
 
     @GetMapping("/")
     public String home() {
@@ -40,6 +47,8 @@ public class HomeController {
     public String foodMap(Model model) {
         // 환경 변수에서 카카오 API 키를 가져와서 JavaScript로 전달
         System.out.println("🔑 환경 변수에서 가져온 카카오 API 키: " + kakaoJavaScriptKey);
+        System.out.println("🌍 활성 프로파일: " + Arrays.toString(environment.getActiveProfiles()));
+        System.out.println("📋 기본 프로파일: " + Arrays.toString(environment.getDefaultProfiles()));
         
         // API 키가 null이거나 비어있으면 빈 문자열 전달
         String apiKey = (kakaoJavaScriptKey != null) ? kakaoJavaScriptKey : "";
