@@ -55,8 +55,14 @@
         
         console.log('🔑 카카오 API 키 확인:', kakaoApiKey);
         
-        // API 키가 비어있으면 기본값 사용
-        const finalApiKey = kakaoApiKey || 'c7620c46bc5355020067ad99447e75f3';
+        // API 키가 비어있으면 에러 처리
+        if (!kakaoApiKey || kakaoApiKey.trim() === '') {
+            console.error('❌ 카카오 API 키가 설정되지 않았습니다.');
+            alert('카카오 지도 API 키가 설정되지 않았습니다. 관리자에게 문의해주세요.');
+            return;
+        }
+        
+        const finalApiKey = kakaoApiKey;
         console.log('🔑 최종 사용할 API 키:', finalApiKey);
         
         // 카카오 지도 API 동적 로드
@@ -74,7 +80,25 @@
         script.onerror = function() {
             console.error('❌ 카카오 API 로드 실패');
             console.error('사용된 API 키:', finalApiKey);
-            alert('카카오 지도 API를 로드할 수 없습니다. API 키를 확인해주세요.');
+            
+            // 지도 영역에 에러 메시지 표시
+            const mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                mapContainer.innerHTML = `
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; background: #f5f5f5; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
+                        <h3 style="color: #666; margin-bottom: 8px;">지도를 불러올 수 없습니다</h3>
+                        <p style="color: #999; font-size: 14px;">카카오 지도 API 키를 확인해주세요.</p>
+                        <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">새로고침</button>
+                    </div>
+                `;
+            }
+            
+            // 검색 기능 비활성화
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            if (searchInput) searchInput.disabled = true;
+            if (searchBtn) searchBtn.disabled = true;
         };
         
         document.head.appendChild(script);
@@ -91,7 +115,7 @@
         let map;
         let userLocation = null;
         let markers = [];
-        let infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+        let infowindow;
 
         // ============================================
         // 사용자 현재 위치 가져오기
@@ -458,6 +482,9 @@
             console.log('📄 카카오 API 로드 완료, 초기화 시작');
             
             try {
+                // 0. InfoWindow 초기화 (카카오 API 로드 후에만 가능)
+                infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+                
                 // 1. 사용자 위치 가져오기
                 await getUserLocation();
                 
