@@ -53,9 +53,15 @@
         // 서버에서 전달받은 카카오 API 키 사용
         const kakaoApiKey = /*[[${kakaoApiKey}]]*/ '';
         
+        console.log('🔑 카카오 API 키 확인:', kakaoApiKey);
+        
+        // API 키가 비어있으면 기본값 사용
+        const finalApiKey = kakaoApiKey || 'c7620c46bc5355020067ad99447e75f3';
+        console.log('🔑 최종 사용할 API 키:', finalApiKey);
+        
         // 카카오 지도 API 동적 로드
         const script = document.createElement('script');
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&libraries=services`;
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${finalApiKey}&libraries=services`;
         script.async = true;
         
         // 카카오 API 로드 완료 후 콜백 함수 설정
@@ -67,7 +73,8 @@
         
         script.onerror = function() {
             console.error('❌ 카카오 API 로드 실패');
-            alert('카카오 지도 API를 로드할 수 없습니다. 페이지를 새로고침해주세요.');
+            console.error('사용된 API 키:', finalApiKey);
+            alert('카카오 지도 API를 로드할 수 없습니다. API 키를 확인해주세요.');
         };
         
         document.head.appendChild(script);

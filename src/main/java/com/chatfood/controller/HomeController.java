@@ -39,6 +39,7 @@ public class HomeController {
     @GetMapping("/foodMap")
     public String foodMap(Model model) {
         // 환경 변수에서 카카오 API 키를 가져와서 JavaScript로 전달
+        System.out.println("🔑 환경 변수에서 가져온 카카오 API 키: " + kakaoJavaScriptKey);
         model.addAttribute("kakaoApiKey", kakaoJavaScriptKey);
         return "foodMap";
     }
