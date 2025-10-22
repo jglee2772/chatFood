@@ -57,6 +57,19 @@
         const script = document.createElement('script');
         script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&libraries=services`;
         script.async = true;
+        
+        // 카카오 API 로드 완료 후 콜백 함수 설정
+        script.onload = function() {
+            console.log('✅ 카카오 API 로드 완료');
+            // API 로드 완료 후 초기화 함수 호출
+            initializeMapAfterKakaoLoad();
+        };
+        
+        script.onerror = function() {
+            console.error('❌ 카카오 API 로드 실패');
+            alert('카카오 지도 API를 로드할 수 없습니다. 페이지를 새로고침해주세요.');
+        };
+        
         document.head.appendChild(script);
         /*]]>*/
     </script>
@@ -432,10 +445,10 @@
         }
 
         // ============================================
-        // 페이지 로드 후 실행
+        // 카카오 API 로드 완료 후 실행할 초기화 함수
         // ============================================
-        window.onload = async () => {
-            console.log('📄 페이지 로드 완료');
+        async function initializeMapAfterKakaoLoad() {
+            console.log('📄 카카오 API 로드 완료, 초기화 시작');
             
             try {
                 // 1. 사용자 위치 가져오기
@@ -461,6 +474,14 @@
                 console.error('❌ 초기화 오류:', error);
                 alert('초기화 중 오류가 발생했습니다.');
             }
+        }
+
+        // ============================================
+        // 페이지 로드 후 실행 (카카오 API와 무관한 기본 설정)
+        // ============================================
+        window.onload = () => {
+            console.log('📄 페이지 로드 완료');
+            // 카카오 API 로드가 완료되면 initializeMapAfterKakaoLoad()가 호출됩니다
         };
     </script>
 </body>
