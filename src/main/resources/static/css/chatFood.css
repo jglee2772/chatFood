@@ -157,11 +157,11 @@ body::before {
     background: #fffdf9;
     border-radius: 2rem;
     border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
+    box-shadow:
         0 12px 30px rgba(0, 0, 0, 0.15),
         inset 0 0 10px rgba(255, 255, 255, 0.6);
     width: 800px;
-    max-height: 600px;
+    height:100%;
     overflow: hidden;
     transition: all 0.3s ease;
     animation: fadeIn 0.8s ease forwards;
@@ -174,7 +174,7 @@ body::before {
 
 .chat-left:hover {
     transform: translateY(-2px);
-    box-shadow: 
+    box-shadow:
         0 15px 35px rgba(0, 0, 0, 0.2),
         inset 0 0 10px rgba(255, 255, 255, 0.6);
 }
@@ -509,23 +509,23 @@ body::before {
         width: 95%;
         max-width: 600px;
     }
-    
+
     .recommendation-card {
         width: 30%;
         min-width: 80px;
         max-width: 100px;
     }
-    
+
     .conversation-option {
         min-width: 80px;
         font-size: 0.8rem;
         padding: 6px 12px;
     }
-    
+
     .logo-section h1 {
         font-size: 24px;
     }
-    
+
     .logo-section span {
         font-size: 14px;
     }
@@ -536,18 +536,18 @@ body::before {
         width: 98%;
         max-width: 400px;
     }
-    
+
     .recommendation-card {
         width: 45%;
         min-width: 70px;
         max-width: 90px;
     }
-    
+
     .conversation-options {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .conversation-option {
         width: 100%;
         max-width: 150px;
@@ -583,7 +583,7 @@ body::before {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     margin-left: 20px;
-    height: fit-content;
+    height: 100%;
 }
 
 .gpt-recommendation-header {
@@ -742,7 +742,7 @@ body::before {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-    
+
     .recommendation-section {
         margin-top: 15px;
         padding: 15px;
