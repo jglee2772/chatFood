@@ -1,11 +1,21 @@
+# Core Flask dependencies
 Flask==2.3.3
 Flask-CORS==4.0.0
-tensorflow==2.20.0
-numpy==1.24.3
+
+# Machine Learning dependencies (compatible with Python 3.11)
+tensorflow==2.15.0
+numpy==1.24.4
 pandas==2.0.3
 scikit-learn==1.3.2
 joblib==1.3.2
+
+# Web server
 gunicorn==21.2.0
-setuptools>=70.0.0
-wheel>=0.40.0
-build>=0.10.0
+
+# Build tools (explicit versions for Python 3.11 compatibility)
+setuptools==70.0.0
+wheel==0.41.2
+build==0.10.0
+
+# Additional dependencies for Python 3.11 compatibility
+pip>=23.0.0
