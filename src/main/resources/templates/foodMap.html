@@ -75,8 +75,11 @@
             // 카카오 API 로드 완료 후 콜백 함수 설정
             script.onload = function() {
                 console.log('✅ 카카오 API 로드 완료');
-                // API 로드 완료 후 초기화 함수 호출
-                initializeMapAfterKakaoLoad();
+                // API 로드 완료 후 약간의 지연을 주고 초기화 함수 호출
+                setTimeout(function() {
+                    console.log('🔄 지연 후 초기화 시작');
+                    initializeMapAfterKakaoLoad();
+                }, 100); // 100ms 지연
             };
             
             script.onerror = function() {
@@ -97,7 +100,10 @@
                 
                 alternativeScript.onload = function() {
                     console.log('✅ 대체 방식으로 카카오 API 로드 성공');
-                    initializeMapAfterKakaoLoad();
+                    setTimeout(function() {
+                        console.log('🔄 대체 방식 지연 후 초기화 시작');
+                        initializeMapAfterKakaoLoad();
+                    }, 100);
                 };
                 
                 alternativeScript.onerror = function() {
@@ -515,8 +521,20 @@
             console.log('📄 카카오 API 로드 완료, 초기화 시작');
             
             try {
+                // 0. 카카오 API 객체 확인
+                if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.InfoWindow) {
+                    console.error('❌ 카카오 API가 완전히 로드되지 않았습니다.');
+                    setTimeout(function() {
+                        initializeMapAfterKakaoLoad();
+                    }, 200);
+                    return;
+                }
+                
+                console.log('✅ 카카오 API 객체 확인 완료');
+                
                 // 0. InfoWindow 초기화 (카카오 API 로드 후에만 가능)
                 infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+                console.log('✅ InfoWindow 초기화 완료');
                 
                 // 1. 사용자 위치 가져오기
                 await getUserLocation();
