@@ -14,15 +14,18 @@ app = Flask(__name__)
 CORS(app)
 
 # --- 1. 모델 로딩 ---
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
+
 try:
     print("🧠 AI 추천 모델과 전처리기를 로딩합니다...")
     model = tf.keras.models.load_model('food_recommendation_model.h5')
     le = joblib.load('label_encoder.joblib')
     model_columns = joblib.load('model_columns.joblib')
     food_price_range_map = joblib.load('food_price_map.joblib')
-    print(" AI 추천 모델 로딩 완료!")
+    print("✅ AI 추천 모델 로딩 완료!")
 except Exception as e:
-    print(f" AI 추천 모델 로딩 중 치명적 오류 발생: {e}")
+    print(f"❌ AI 추천 모델 로딩 중 치명적 오류 발생: {e}")
     model = None
 
 # --- 2. 추천 로직 함수 (수정됨) ---
@@ -77,6 +80,14 @@ def recommend_food_logic(data):
     return response
 
 # --- 3. API 엔드포인트 ---
+@app.route('/', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'success',
+        'message': 'ChatFood Python AI Server is running!',
+        'model_loaded': model is not None
+    })
+
 @app.route('/recommend', methods=['POST'])
 def recommend_api():
     if model is None:
@@ -89,7 +100,7 @@ def recommend_api():
         recommendations = recommend_food_logic(data)
         return jsonify(recommendations)
     except Exception as e:
-        print(f" 추천 처리 중 오류 발생: {e}")
+        print(f"❌ 추천 처리 중 오류 발생: {e}")
         return jsonify({'error': '서버 내부 오류가 발생했습니다.'}), 500
 
 # --- 4. 서버 실행 ---
