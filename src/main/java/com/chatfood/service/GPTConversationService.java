@@ -100,20 +100,39 @@ public class GPTConversationService {
             List<Recommendation> pythonRecommendations = new ArrayList<>();
             
             if (userEmail != null) {
+                logger.info("로그인 사용자 감지 - 이메일: {}", userEmail);
                 try {
                     Optional<User> userOpt = userRepository.findByEmail(userEmail);
                     if (userOpt.isPresent()) {
                         User user = userOpt.get();
+                        logger.info("사용자 정보 조회 성공 - 이름: {}, 성별: {}, 나이: {}, 지역: {}, 선호카테고리: {}", 
+                                   user.getName(), user.getGender(), user.getAge(), user.getRegion(), user.getOftenCategory());
+                        
                         UserInfo userInfo = convertUserToUserInfo(user);
+                        logger.info("UserInfo 변환 완료 - 성별: {}, 나이대: {}, 지역: {}, 선호카테고리: {}, 좋아하는카테고리: {}", 
+                                   userInfo.getGender(), userInfo.getAgeGroup(), userInfo.getRegion(), 
+                                   userInfo.getPrefCategory(), userInfo.getFavCategories());
+                        
                         FlaskResponse flaskResponse = recommendationService.getRecommendations(userInfo).block();
+                        logger.info("Python AI 서버 응답 - 상태: {}, 추천수: {}", 
+                                   flaskResponse != null ? flaskResponse.getStatus() : "null", 
+                                   flaskResponse != null && flaskResponse.getRecommendations() != null ? flaskResponse.getRecommendations().size() : 0);
                         
                         if (flaskResponse != null && !flaskResponse.getRecommendations().isEmpty()) {
                             pythonRecommendations = flaskResponse.getRecommendations();
+                            logger.info("Python AI 개인화 추천 성공 - 추천 음식: {}", 
+                                       pythonRecommendations.stream().map(r -> r.getFoodName()).collect(java.util.stream.Collectors.toList()));
+                        } else {
+                            logger.warn("Python AI 추천 결과가 비어있음");
                         }
+                    } else {
+                        logger.warn("사용자 정보를 찾을 수 없음 - 이메일: {}", userEmail);
                     }
                 } catch (Exception e) {
-                    logger.warn("Python AI 추천 실패, 기본 추천 사용", e);
+                    logger.error("Python AI 추천 실패, 기본 추천 사용", e);
                 }
+            } else {
+                logger.info("비로그인 사용자 - 기본 추천 사용");
             }
             
             // 기본 추천 생성 (Python AI 실패 시)

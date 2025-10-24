@@ -15,6 +15,7 @@ public class RecommendationService {
     // 서비스가 생성될 때 WebClient를 초기화합니다.
     // Python Flask 서버의 주소를 가리킵니다.
     public RecommendationService(@Value("${python.ai.server.url:http://127.0.0.1:5000}") String pythonAiUrl) {
+        System.out.println("🔗 Python AI 서버 URL: " + pythonAiUrl);
         this.webClient = WebClient.create(pythonAiUrl);
     }
 
@@ -24,6 +25,12 @@ public class RecommendationService {
                 .uri("/recommend")   // /recommend 경로로
                 .bodyValue(userInfo) // 요청 본문에 userInfo 객체를 JSON으로 담아서
                 .retrieve()          // 응답을 받아
-                .bodyToMono(FlaskResponse.class); // FlaskResponse 객체로 변환
+                .bodyToMono(FlaskResponse.class) // FlaskResponse 객체로 변환
+                .doOnSuccess(response -> {
+                    System.out.println("✅ Python AI 서버 응답 성공: " + response);
+                })
+                .doOnError(error -> {
+                    System.err.println("❌ Python AI 서버 연결 실패: " + error.getMessage());
+                });
     }
 }

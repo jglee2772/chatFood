@@ -37,6 +37,18 @@ public class ChatFoodController {
         logger.info("초기 추천 요청 수신 - 세션ID: {}, 사용자: {}", 
                    sessionId, userEmail != null ? userEmail : "비로그인");
         
+        // 세션 정보 디버깅
+        logger.info("세션 정보 - ID: {}, 생성시간: {}, 최근접근시간: {}", 
+                   sessionId, session.getCreationTime(), session.getLastAccessedTime());
+        
+        // 세션 속성들 확인
+        java.util.Enumeration<String> attributeNames = session.getAttributeNames();
+        java.util.List<String> attributeList = new java.util.ArrayList<>();
+        while (attributeNames.hasMoreElements()) {
+            attributeList.add(attributeNames.nextElement());
+        }
+        logger.info("세션 속성들: {}", attributeList);
+        
         try {
             // GPT 기반 초기 추천 생성
             ConversationResponse conversationResponse = gptConversationService.getInitialRecommendations(sessionId, userEmail);
