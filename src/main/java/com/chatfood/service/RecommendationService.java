@@ -19,6 +19,21 @@ public class RecommendationService {
         this.webClient = WebClient.create(pythonAiUrl);
     }
 
+    // Python AI 서버 헬스체크
+    public Mono<String> healthCheck() {
+        return this.webClient.get()
+                .uri("/")
+                .retrieve()
+                .bodyToMono(String.class)
+                .timeout(java.time.Duration.ofSeconds(10))
+                .doOnSuccess(response -> {
+                    System.out.println("✅ Python AI 서버 헬스체크 성공: " + response);
+                })
+                .doOnError(error -> {
+                    System.err.println("❌ Python AI 서버 헬스체크 실패: " + error.getMessage());
+                });
+    }
+
     // 사용자 정보를 Flask 서버로 보내고 추천 결과를 받아옵니다.
     public Mono<FlaskResponse> getRecommendations(UserInfo userInfo) {
         return this.webClient.post() // POST 방식으로 요청
@@ -26,8 +41,8 @@ public class RecommendationService {
                 .bodyValue(userInfo) // 요청 본문에 userInfo 객체를 JSON으로 담아서
                 .retrieve()          // 응답을 받아
                 .bodyToMono(FlaskResponse.class) // FlaskResponse 객체로 변환
-                .timeout(java.time.Duration.ofSeconds(10)) // 10초 타임아웃
-                .retry(2) // 2번 재시도
+                .timeout(java.time.Duration.ofSeconds(30)) // 30초 타임아웃
+                .retry(3) // 3번 재시도
                 .doOnSuccess(response -> {
                     System.out.println("✅ Python AI 서버 응답 성공: " + response);
                 })

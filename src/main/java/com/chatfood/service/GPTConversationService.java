@@ -116,6 +116,16 @@ public class GPTConversationService {
                         // Python AI 서버 헬스체크 먼저 수행
                         try {
                             logger.info("Python AI 서버 헬스체크 시작...");
+                            
+                            // 1단계: 헬스체크
+                            try {
+                                String healthResponse = recommendationService.healthCheck().block();
+                                logger.info("Python AI 서버 헬스체크 성공: {}", healthResponse);
+                            } catch (Exception e) {
+                                logger.warn("Python AI 서버 헬스체크 실패, 추천 요청 시도: {}", e.getMessage());
+                            }
+                            
+                            // 2단계: 추천 요청
                             FlaskResponse flaskResponse = recommendationService.getRecommendations(userInfo).block();
                             logger.info("Python AI 서버 응답 - 상태: {}, 추천수: {}", 
                                        flaskResponse != null ? flaskResponse.getStatus() : "null", 
