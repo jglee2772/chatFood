@@ -113,17 +113,27 @@ public class GPTConversationService {
                                    userInfo.getGender(), userInfo.getAgeGroup(), userInfo.getRegion(), 
                                    userInfo.getPrefCategory(), userInfo.getFavCategories());
                         
-                        FlaskResponse flaskResponse = recommendationService.getRecommendations(userInfo).block();
-                        logger.info("Python AI 서버 응답 - 상태: {}, 추천수: {}", 
-                                   flaskResponse != null ? flaskResponse.getStatus() : "null", 
-                                   flaskResponse != null && flaskResponse.getRecommendations() != null ? flaskResponse.getRecommendations().size() : 0);
-                        
-                        if (flaskResponse != null && !flaskResponse.getRecommendations().isEmpty()) {
-                            pythonRecommendations = flaskResponse.getRecommendations();
-                            logger.info("Python AI 개인화 추천 성공 - 추천 음식: {}", 
-                                       pythonRecommendations.stream().map(r -> r.getFoodName()).collect(java.util.stream.Collectors.toList()));
-                        } else {
-                            logger.warn("Python AI 추천 결과가 비어있음");
+                        // Python AI 서버 헬스체크 먼저 수행
+                        try {
+                            logger.info("Python AI 서버 헬스체크 시작...");
+                            FlaskResponse flaskResponse = recommendationService.getRecommendations(userInfo).block();
+                            logger.info("Python AI 서버 응답 - 상태: {}, 추천수: {}", 
+                                       flaskResponse != null ? flaskResponse.getStatus() : "null", 
+                                       flaskResponse != null && flaskResponse.getRecommendations() != null ? flaskResponse.getRecommendations().size() : 0);
+                            
+                            if (flaskResponse != null && !flaskResponse.getRecommendations().isEmpty()) {
+                                pythonRecommendations = flaskResponse.getRecommendations();
+                                logger.info("Python AI 개인화 추천 성공 - 추천 음식: {}", 
+                                           pythonRecommendations.stream().map(r -> r.getFoodName()).collect(java.util.stream.Collectors.toList()));
+                            } else {
+                                logger.warn("Python AI 추천 결과가 비어있음");
+                            }
+                        } catch (org.springframework.web.reactive.function.client.WebClientResponseException$BadGateway e) {
+                            logger.error("Python AI 서버 502 Bad Gateway - 서버가 응답하지 않음. 기본 추천 사용", e);
+                        } catch (java.util.concurrent.TimeoutException e) {
+                            logger.error("Python AI 서버 타임아웃 - 서버 응답 지연. 기본 추천 사용", e);
+                        } catch (Exception e) {
+                            logger.error("Python AI 서버 기타 오류 - 기본 추천 사용", e);
                         }
                     } else {
                         logger.warn("사용자 정보를 찾을 수 없음 - 이메일: {}", userEmail);

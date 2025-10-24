@@ -26,6 +26,8 @@ public class RecommendationService {
                 .bodyValue(userInfo) // 요청 본문에 userInfo 객체를 JSON으로 담아서
                 .retrieve()          // 응답을 받아
                 .bodyToMono(FlaskResponse.class) // FlaskResponse 객체로 변환
+                .timeout(java.time.Duration.ofSeconds(10)) // 10초 타임아웃
+                .retry(2) // 2번 재시도
                 .doOnSuccess(response -> {
                     System.out.println("✅ Python AI 서버 응답 성공: " + response);
                 })
