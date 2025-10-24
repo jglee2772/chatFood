@@ -128,10 +128,12 @@ public class GPTConversationService {
                             } else {
                                 logger.warn("Python AI 추천 결과가 비어있음");
                             }
-                        } catch (org.springframework.web.reactive.function.client.WebClientResponseException$BadGateway e) {
-                            logger.error("Python AI 서버 502 Bad Gateway - 서버가 응답하지 않음. 기본 추천 사용", e);
-                        } catch (java.util.concurrent.TimeoutException e) {
-                            logger.error("Python AI 서버 타임아웃 - 서버 응답 지연. 기본 추천 사용", e);
+                        } catch (org.springframework.web.reactive.function.client.WebClientResponseException e) {
+                            if (e.getStatusCode().value() == 502) {
+                                logger.error("Python AI 서버 502 Bad Gateway - 서버가 응답하지 않음. 기본 추천 사용", e);
+                            } else {
+                                logger.error("Python AI 서버 HTTP 오류 ({}): 기본 추천 사용", e.getStatusCode(), e);
+                            }
                         } catch (Exception e) {
                             logger.error("Python AI 서버 기타 오류 - 기본 추천 사용", e);
                         }
